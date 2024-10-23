@@ -1,3 +1,4 @@
+import { HexString } from "ethers/lib.commonjs/utils/data";
 import { Revision } from "../models/models";
 
 
@@ -63,6 +64,7 @@ export interface RevisionMetadata {
     previous_verification_hash: string | null;
     metadata_hash: string;
     verification_hash: string;
+    merge_hash: string | null
 }
 
 export interface Timestamp {
@@ -91,21 +93,38 @@ export function getTimestampSafe(pageData: PageData): string | undefined {
 }
 
 export interface RevisionVerificationResult {
-    verification_hash: string,
-    status: {
-        content: boolean,
-        metadata: boolean,
-        signature: string,
-        witness: string,
-        verification: string,
-        file: string,
-    },
-    witness_result: Object,
-    file_hash: string,
-    data: Revision_1_2
+    // status: any;
+    // verification_hash: string,
+    // status: {
+    //     content: boolean,
+    //     metadata: boolean,
+    //     signature: string,
+    //     witness: string,
+    //     verification: string,
+    //     file: string,
+    //     verifyFileResult: VerifyFileResult
+    // },
+    // witness_result: Object,
+    // data: Revision_1_2,
+    successful: boolean,
+    content_verification: ResultStatus,
+    witness_verification: ResultStatus,
+    signature_verification: ResultStatus,
+    metadata_verification: ResultStatus,
 }
 
-export interface VerifyFileResult{
+export enum ResultStatusEnum {
+    MISSING,
+    AVAILABLE
+}
+
+export interface ResultStatus {
+    status: ResultStatusEnum
+    successful: boolean
+    message: HexString
+}
+
+export interface VerifyFileResult {
     error_message: string | null,
     file_hash: string | null
 }
