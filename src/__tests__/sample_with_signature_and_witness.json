@@ -1,0 +1,130 @@
+{
+    "pages": [
+      {
+        "genesis_hash": "adf492043434568aa3300c9ff05324db844d9c19ad645615aa6ca9fbb13d232df5907496b22e2ee60b09483e97eb622ad525bc2d9786726816c33ea6c35dd273",
+        "domain_id": "8a2dc99afd",
+        "title": "Revisions",
+        "namespace": 0,
+        "chain_height": 4,
+        "revisions": {
+          "adf492043434568aa3300c9ff05324db844d9c19ad645615aa6ca9fbb13d232df5907496b22e2ee60b09483e97eb622ad525bc2d9786726816c33ea6c35dd273": {
+            "content": {
+              "rev_id": 72,
+              "content": {
+                "main": "Some content",
+                "transclusion-hashes": ""
+              },
+              "content_hash": "dea220d08a760b682b882437b7802d3b0d15768a245808113d5034ab24fa7996a31d4e23dc4b8dbcd2201d8324f1548aa35cce4c0dee47f15a01dbd7761fdd5c"
+            },
+            "metadata": {
+              "domain_id": "8a2dc99afd",
+              "time_stamp": "20241010071100",
+              "previous_verification_hash": "",
+              "merge_hash": "",
+              "metadata_hash": "18ea42fd0c69d52cc01b80260e48dbda76977fcda97fc2150b9b9c0a68c86985bc3b86ea5c45ea9c5f9ddf4940f3bffc0f20a8157eaa90224440cdc47f360adb",
+              "verification_hash": "adf492043434568aa3300c9ff05324db844d9c19ad645615aa6ca9fbb13d232df5907496b22e2ee60b09483e97eb622ad525bc2d9786726816c33ea6c35dd273"
+            },
+            "signature": null,
+            "witness": null
+          },
+          "e84cb4112b51d91cc4571b424d92e85dd44fd034f67305ac9fef7f3832a1dd8e443f78e6cce81302a2c375a32eb88e187be4b8434047ae8fcd6ce60844c98a7f": {
+            "content": {
+              "rev_id": 73,
+              "content": {
+                "main": "Some content edited",
+                "transclusion-hashes": ""
+              },
+              "content_hash": "42d75b708e98f90de3e404db4ed97b38e8cfc900df7504406f0b291098b38a7988285dd6fb632257c00ae905822a58f82c0238fa1125d9cd54b663b67bf474e1"
+            },
+            "metadata": {
+              "domain_id": "8a2dc99afd",
+              "time_stamp": "20241010071126",
+              "previous_verification_hash": "adf492043434568aa3300c9ff05324db844d9c19ad645615aa6ca9fbb13d232df5907496b22e2ee60b09483e97eb622ad525bc2d9786726816c33ea6c35dd273",
+              "merge_hash": "",
+              "metadata_hash": "5f4e456fc73a4c6bf0657be63de022ad0231372a42972cfe8294ce0e7492552fa0a4b227b00bdd3953522a0296b322af47817d63eda426f74e13ea730d85675c",
+              "verification_hash": "e84cb4112b51d91cc4571b424d92e85dd44fd034f67305ac9fef7f3832a1dd8e443f78e6cce81302a2c375a32eb88e187be4b8434047ae8fcd6ce60844c98a7f"
+            },
+            "signature": null,
+            "witness": null
+          },
+          "2a20fe6776f0f175a1be524b07fd5ae715e917308cbb7d74122e3b564273ee7d013fb3b1d0058cf4c88136ba60297a18962364154f7d11226ae9dc8c2f6971eb": {
+            "content": {
+              "rev_id": 74,
+              "content": {
+                "main": "Some content edited",
+                "signature-slot": "[\n    {\n        \"user\": \"0x254B0D7b63342Fcb8955DB82e95C21d72EFdB6f7\",\n        \"timestamp\": \"20241010071223\"\n    }\n]",
+                "transclusion-hashes": ""
+              },
+              "content_hash": "7f7bee8fe550465bb685b7b34411479aa2281e8cd15db8de2b0d1eef169c8c5ae60976e8049c670305dfaf36031d0b952357f1463d80f27fd40db5077c53c032"
+            },
+            "metadata": {
+              "domain_id": "8a2dc99afd",
+              "time_stamp": "20241010071223",
+              "previous_verification_hash": "e84cb4112b51d91cc4571b424d92e85dd44fd034f67305ac9fef7f3832a1dd8e443f78e6cce81302a2c375a32eb88e187be4b8434047ae8fcd6ce60844c98a7f",
+              "merge_hash": "",
+              "metadata_hash": "e6aa3837a7a7f310ff6f7b45d73c3374708a4bb876f333c90c77ad019281100dcf3a531098338b9987b0fef63ab035ea2a987c631d0b752408cf061040767797",
+              "verification_hash": "2a20fe6776f0f175a1be524b07fd5ae715e917308cbb7d74122e3b564273ee7d013fb3b1d0058cf4c88136ba60297a18962364154f7d11226ae9dc8c2f6971eb"
+            },
+            "signature": {
+              "signature": "0xc2930bb5e6e37693984d03380bdabdf5403266ba97fa30985f873a0567e2e7b974a69b2a876226d986b8c110eba1f3da6b344f09cfb69bca5dd455d9413158a61b",
+              "public_key": "0x04c56c1231c8a69a375c3f81e549413eb0f415cfd56d40c9a5622456a3f77be0625e1fe8a50cb6274e5d0959625bf33f3c8d1606b5782064bad2e4b46c5e2a7428",
+              "wallet_address": "0x254B0D7b63342Fcb8955DB82e95C21d72EFdB6f7",
+              "signature_hash": "c7e130ee9474427f9302130b2fa91c77c553b8fb311e4cfe1cce2e73df84eeb1cc32410840e64a12726bad556ce54aa5e481200081bfb4496b7aa2904145734f"
+            },
+            "witness": null
+          },
+          "cc8d6b2139f0ef1b8cb43b526958779aaf0f05bb01fa437290a8674e2ff2041822a4eab89bb0290da6140b2155be6670885bcc43c566a3f39ad37a05a26a69c8": {
+            "content": {
+              "rev_id": 79,
+              "content": {
+                "main": "Some content edited",
+                "signature-slot": "[\n    {\n        \"user\": \"0x254B0D7b63342Fcb8955DB82e95C21d72EFdB6f7\",\n        \"timestamp\": \"20241010071223\"\n    }\n]",
+                "transclusion-hashes": "",
+                "witness-slot": "{\"domain_snapshot_title\":\"Data Accounting:DomainSnapshot:d0780a42505cbdf37e96eb288bdc71eee0e031a4dae4dbb77ed3e4a79887af47f238bf6092e792568bb400d812d696e6df2a3b4ac145f402e9967e9788efa303\",\"timestamp\":\"20241010071403\"}"
+              },
+              "content_hash": "798433e6425552e6d046009cd4e7f7d5b1649a0375b70ae8e06c8f4b028fffe0c0e567371c578a5f4d9b283ecd1bb2e8a23e93a749c4f02ba952376e34133778"
+            },
+            "metadata": {
+              "domain_id": "8a2dc99afd",
+              "time_stamp": "20241010071403",
+              "previous_verification_hash": "2a20fe6776f0f175a1be524b07fd5ae715e917308cbb7d74122e3b564273ee7d013fb3b1d0058cf4c88136ba60297a18962364154f7d11226ae9dc8c2f6971eb",
+              "merge_hash": "",
+              "metadata_hash": "02857febdad94f745367b81f3277fb4be33b0fef4828f14269f867ce5eb419146d830d4710c74718dff5eba8f715f7bfa270d365a8a41c9c1de2cc6dd714a484",
+              "verification_hash": "cc8d6b2139f0ef1b8cb43b526958779aaf0f05bb01fa437290a8674e2ff2041822a4eab89bb0290da6140b2155be6670885bcc43c566a3f39ad37a05a26a69c8"
+            },
+            "signature": null,
+            "witness": {
+              "domain_id": "8a2dc99afd",
+              "domain_snapshot_title": "Data Accounting:DomainSnapshot:d0780a42505cbdf37e96eb288bdc71eee0e031a4dae4dbb77ed3e4a79887af47f238bf6092e792568bb400d812d696e6df2a3b4ac145f402e9967e9788efa303",
+              "witness_hash": "5d4f12bb0924621082f6b45fb17b4214c70735788a67199fb427c506fe0374609a6f1f25161207da0384dedc1094e87aa81bb0ac504d03ddd573116e61befa62",
+              "domain_snapshot_genesis_hash": "d0780a42505cbdf37e96eb288bdc71eee0e031a4dae4dbb77ed3e4a79887af47f238bf6092e792568bb400d812d696e6df2a3b4ac145f402e9967e9788efa303",
+              "merkle_root": "805fc1ad051aec0a19a3d5401b849bdb497ce1de4174e12ee3d5ddbf80d58ce3080005d564545ef7f5a860cb757a1d74f653f853513c10819bb0d5efdb201e40",
+              "witness_event_verification_hash": "c67792211553c996ee865395e2197e78b9fb23f8f241c15fb35c77610fdc5a9a575346cf3bdb4bad1f26f27736d08b237c13422ddb40fc23f573c7ec06be795c",
+              "witness_network": "sepolia",
+              "smart_contract_address": "0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611",
+              "witness_event_transaction_hash": "0xca7f44cf90dfb987edfe4711972d3aa907efe1e8c7d135c17a788f264183ffeb",
+              "sender_account_address": "0x254b0d7b63342fcb8955db82e95c21d72efdb6f7",
+              "source": "default",
+              "structured_merkle_proof": [
+                {
+                  "id": 6,
+                  "witness_event_verification_hash": "c67792211553c996ee865395e2197e78b9fb23f8f241c15fb35c77610fdc5a9a575346cf3bdb4bad1f26f27736d08b237c13422ddb40fc23f573c7ec06be795c",
+                  "depth": 0,
+                  "left_leaf": "90f14523d65f7550a5358a89a0629fb9024a02ca3dfc063ccfec596d86c235125ecd9da92325d0252017923088dea7e47b1b351caa947abb114e1a0553464ac0",
+                  "right_leaf": "2a20fe6776f0f175a1be524b07fd5ae715e917308cbb7d74122e3b564273ee7d013fb3b1d0058cf4c88136ba60297a18962364154f7d11226ae9dc8c2f6971eb",
+                  "successor": "805fc1ad051aec0a19a3d5401b849bdb497ce1de4174e12ee3d5ddbf80d58ce3080005d564545ef7f5a860cb757a1d74f653f853513c10819bb0d5efdb201e40",
+                  "witness_event_id": 7
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "site_info": {
+      "sitename": "Personal Knowledge Container",
+      "base": "http:\/\/localhost:9352\/index.php\/Main_Page",
+      "generator": "MediaWiki 1.39.4",
+      "version": "0.3.0"
+    }
+  }

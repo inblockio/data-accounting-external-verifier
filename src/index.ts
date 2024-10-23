@@ -1,5 +1,5 @@
 import { Revision } from "./models/models";
-import { Revision_1_2 } from "./v1_2/models";
+import { Revision_1_2, RevisionVerificationResult } from "./v1_2/models";
 import { verifyRevision } from "./v1_2/v1_2";
 
 
@@ -33,14 +33,15 @@ export class AquaVerifier {
         return this.options
     }
 
-    public verifyRevision(revision: Revision){
+    public verifyRevision(revision: Revision): RevisionVerificationResult | null{
         if(this.options.version == 1.2){
-            verifyRevision(revision as Revision_1_2)
+            return verifyRevision(revision as Revision_1_2)
         }
+        return null
     }
 
     public verifySignature() {
-
+        
     }
 
     public verifyWitness() {

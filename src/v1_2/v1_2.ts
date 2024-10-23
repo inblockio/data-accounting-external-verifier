@@ -1,26 +1,9 @@
 import { ResultStatus, ResultStatusEnum, Revision_1_2, RevisionContent, RevisionVerificationResult, VerifyFileResult } from "./models";
-import { getHashSum, verifyContent } from "./utils";
+import { getHashSum, jsonReplacer, verifyContent, verifyFile, verifyMetadata, verifySignature, verifyWitness } from "./utils";
 
 const INVALID_VERIFICATION_STATUS = "INVALID"
 const VERIFIED_VERIFICATION_STATUS = "VERIFIED"
 const ERROR_VERIFICATION_STATUS = "ERROR"
-
-function verifyFile(data: RevisionContent): [boolean, VerifyFileResult] {
-    const fileContentHash = data.content.file_hash || null
-    if (fileContentHash === null) {
-        return [
-            false,
-            { error_message: "Revision contains a file, but no file content hash", file_hash: null },
-        ]
-    }
-
-    const rawFileContent = Buffer.from(data.file?.data || "", "base64")
-    if (fileContentHash !== getHashSum(rawFileContent.toString())) {
-        return [false, { error_message: "File content hash does not match", file_hash: null }]
-    }
-
-    return [true, { file_hash: fileContentHash, error_message: null }]
-}
 
 export function verifyRevision(revision: Revision_1_2): RevisionVerificationResult {
     let defaultResultStatus: ResultStatus = {
@@ -28,31 +11,53 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
         successful: false,
         message: ""
     }
+
     let revisionResult: RevisionVerificationResult = {
         successful: false,
-        content_verification: defaultResultStatus,
-        witness_verification: defaultResultStatus,
-        signature_verification: defaultResultStatus,
-        metadata_verification: defaultResultStatus
+        file_verification: structuredClone(defaultResultStatus),
+        content_verification: structuredClone(defaultResultStatus),
+        witness_verification: structuredClone(defaultResultStatus),
+        signature_verification: structuredClone(defaultResultStatus),
+        metadata_verification: structuredClone(defaultResultStatus)
     }
 
-    // Verify File
-    if ("file" in revision.content) {
-        const [fileIsCorrect, fileOut] = verifyFile(revision.content)
-        revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE
-        revisionResult.content_verification.successful = fileIsCorrect
-        revisionResult.content_verification.message = fileOut.error_message ?? ""
-    }
+    const [fileIsCorrect, fileOut] = verifyFile(revision.content)
+    revisionResult.file_verification.status = ResultStatusEnum.AVAILABLE
+    revisionResult.file_verification.successful = fileIsCorrect
+    revisionResult.file_verification.message = fileOut.error_message ?? ""
+
 
     // Verify Content
-    let [ok, contentHash] = verifyContent(revision.content)
-    // if (!ok) {
-    //     return [false, { error_message: "Content hash doesn't match" }]
-    // }
-
+    let [ok, resultMessage] = verifyContent(revision.content)
     revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE
-    revisionResult.content_verification.successful = fileIsCorrect
-    revisionResult.content_verification.message = fileOut.error_message ?? ""
+    revisionResult.content_verification.successful = ok
+    revisionResult.content_verification.message = resultMessage
+
+    // Verifty Metadata 
+    let [metadataOk, metadataHashMessage] = verifyMetadata(revision.metadata)
+
+    revisionResult.metadata_verification.status = ResultStatusEnum.AVAILABLE
+    revisionResult.metadata_verification.successful = metadataOk
+    revisionResult.metadata_verification.message = metadataHashMessage
+
+    // Verify signature
+    if (revision.signature) {
+        let [signatureOk, signatureMessage] = verifySignature(revision?.signature, revision.metadata.previous_verification_hash ?? "")
+
+        revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE
+        revisionResult.signature_verification.successful = signatureOk
+        revisionResult.signature_verification.message = signatureMessage
+    }
+
+    // Verify witness
+    if (revision.witness) {
+        // let [signatureOk, signatureMessage] = await 
+        verifyWitness(revision?.witness, revision.metadata.previous_verification_hash ?? "", revision.witness.structured_merkle_proof.length > 1).then(([success, message]) => {
+            revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE
+            revisionResult.signature_verification.successful = success
+            revisionResult.signature_verification.message = message
+        })
+    }
 
     return revisionResult
 }
