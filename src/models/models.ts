@@ -1,0 +1,5 @@
+interface Revision {
+
+}
+
+export { Revision }
