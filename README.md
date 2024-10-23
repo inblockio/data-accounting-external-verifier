@@ -1,15 +1,19 @@
-# data-accounting-external-verifier
+# Aqua Verifier 
 JS Client for external verifier.
-Goal: A shared library supports a commandline execution and a chrome-extension which is implementation independent. So the verify.js will support not only the mediawiki integration but potentially other third party integrations of the verification procedure.
+* An npm library 
+* a cli tool to verify aqaua chain json file 
 
-## Minimum Requirements
-Node.js 14.x+
-
-```sh
--sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+## Installation
+```bash
+npm install aqua-verifier
 ```
-But it is recommended to run the latest Node.js.
 
-## Functional description
-* configure remote domain (by default use localhost as domoain) to query REST API to verify page
-* configure title name to select which page to verify
+## Usage
+
+```typescript
+import { AquaVerifier } from 'aqua-verifier';
+
+```
+
+##  Requirements
+Node.js v20.9.0

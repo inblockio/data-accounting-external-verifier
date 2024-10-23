@@ -1,45 +1,28 @@
 {
-  "name": "data-accounting-external-verifier",
-  "version": "1.0.9",
-  "description": "JS Client for external verifier.  Goal: A shared library supports a commandline execution and a chrome-extension which is implementation independent. So the verify.js will support not only the mediawiki integration but potentially other third party integrations of the verification procedure.",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "type": "module",
-  "dependencies": {
-    "browser-process-hrtime": "git+https://git@github.com/rht/browser-process-hrtime.git",
-    "buffer": "^6.0.3",
-    "ethers": "^6.13.3",
-    "http-status-codes": "^2.2.0",
-    "js-sha3": "^0.8.0",
-    "minimist": "^1.2.8",
-    "xml2js": "^0.6.2"
-  },
+  "name": "aqua-verifier",
+  "version": "1.0.0",
+  "description": "TypeScript verification library with type definitions",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "prepare": "npm run build"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/inblockio/data-accounting-external-verifier.git"
-  },
-  "author": "",
-  "license": "GPLv3",
-  "bugs": {
-    "url": "https://github.com/inblockio/data-accounting-external-verifier/issues"
-  },
-  "homepage": "https://github.com/inblockio/data-accounting-external-verifier#readme",
+  "keywords": [
+    "typescript",
+    "validation",
+    "verification"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "devDependencies": {
-    "prettier": "^3.3.3",
-    "typescript": "5.1.6"
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
   },
   "files": [
-    "checkEtherScan.js",
-    "formatter.js",
-    "index.js",
-    "index.d.ts",
-    "LICENSE",
-    "package.json",
-    "README.md"
+    "dist"
   ]
 }
