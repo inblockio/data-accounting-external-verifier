@@ -1,6 +1,6 @@
 
 import sha3 from "js-sha3"
-import { MerkleNode, RevisionContent, RevisionMetadata, RevisionSignature, RevisionWitness, VerifyFileResult } from "./models"
+import { MerkleNode, RevisionContent_1_2, RevisionMetadata_1_2, RevisionSignature_1_2, RevisionWitness_1_2, VerifyFileResult } from "./models"
 import { ethers } from "ethers"
 import { checkEtherScan } from "./check_etherscan"
 
@@ -8,7 +8,7 @@ export function getHashSum(content: string) {
   return content === "" ? "" : sha3.sha3_512(content)
 }
 
-export function verifyFile(data: RevisionContent): [boolean, VerifyFileResult] {
+export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileResult] {
   const fileContentHash = data.content.file_hash || null
   if (fileContentHash === null) {
       return [
@@ -25,7 +25,7 @@ export function verifyFile(data: RevisionContent): [boolean, VerifyFileResult] {
   return [true, { file_hash: fileContentHash, error_message: null }]
 }
 
-export function verifyContent(data: RevisionContent): [boolean, string] {
+export function verifyContentUtil(data: RevisionContent_1_2): [boolean, string] {
   let content = ""
   for (const slotContent of Object.values(data.content)) {
     content += slotContent
@@ -38,7 +38,7 @@ export function verifyContent(data: RevisionContent): [boolean, string] {
   return [false, "Content hash does not match"]
 }
 
-export function verifyMetadata(data: RevisionMetadata): [boolean, string] {
+export function verifyMetadataUtil(data: RevisionMetadata_1_2): [boolean, string] {
   const metadataHash = calculateMetadataHash(
     data.domain_id,
     data.time_stamp,
@@ -64,7 +64,7 @@ function calculateMetadataHash(
 }
 
 
-export function verifySignature(data: RevisionSignature, verificationHash: string): [boolean, string] {
+export function verifySignatureUtil(data: RevisionSignature_1_2, verificationHash: string): [boolean, string] {
   // TODO enforce that the verificationHash is a correct SHA3 sum string
   // Specify signature correctness
   let signatureOk = false
@@ -97,8 +97,8 @@ export function verifySignature(data: RevisionSignature, verificationHash: strin
 }
 
 
-export async function verifyWitness(
-  witnessData: RevisionWitness,
+export async function verifyWitnessUtil(
+  witnessData: RevisionWitness_1_2,
   verification_hash: string,
   doVerifyMerkleProof: boolean,
 ): Promise<[boolean, string]> {

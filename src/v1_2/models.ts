@@ -1,5 +1,5 @@
 import { HexString } from "ethers/lib.commonjs/utils/data";
-import { Revision } from "../models/models";
+import { Revision, RevisionSignature } from "../models/models";
 
 
 export interface HashChain {
@@ -18,7 +18,7 @@ export interface StructuredMerkleProof {
     successor: string;
 }
 
-export interface RevisionWitness {
+export interface RevisionWitness_1_2 {
     domain_snapshot_genesis_hash: string;
     merkle_root: string;
     witness_network: string;
@@ -28,7 +28,7 @@ export interface RevisionWitness {
     structured_merkle_proof: StructuredMerkleProof[];
 }
 
-export interface RevisionSignature {
+export interface RevisionSignature_1_2 extends RevisionSignature {
     signature: string;
     public_key: string;
     signature_hash: string;
@@ -36,13 +36,13 @@ export interface RevisionSignature {
 }
 
 export interface Revision_1_2 extends Revision {
-    content: RevisionContent;
-    metadata: RevisionMetadata;
-    signature: RevisionSignature | null;
-    witness: RevisionWitness | null;
+    content: RevisionContent_1_2;
+    metadata: RevisionMetadata_1_2;
+    signature: RevisionSignature_1_2 | null;
+    witness: RevisionWitness_1_2 | null;
 }
 
-export interface RevisionContent {
+export interface RevisionContent_1_2 {
     file: FileContent | null;
     content: {
         file_hash?: string;
@@ -58,7 +58,7 @@ export interface FileContent {
     comment: string;
 }
 
-export interface RevisionMetadata {
+export interface RevisionMetadata_1_2 {
     domain_id: string;
     time_stamp: string,//Timestamp, //string;  // Changed from Timestamp object to string
     previous_verification_hash: string | null;
@@ -91,6 +91,7 @@ export function getTimestampDirect(pageData: PageData): string | undefined {
 export function getTimestampSafe(pageData: PageData): string | undefined {
     return pageData.pages[0]?.revisions[Object.keys(pageData.pages[0]?.revisions || {})[0]]?.metadata.time_stamp;
 }
+
 
 export interface RevisionVerificationResult {
     successful: boolean,

@@ -1,6 +1,6 @@
-import { Revision } from "./models/models";
-import { Revision_1_2, RevisionVerificationResult } from "./v1_2/models";
-import { verifyRevision } from "./v1_2/v1_2";
+import { Revision , RevisionSignature, RevisionWitness} from "./models/models";
+import { Revision_1_2, RevisionSignature_1_2, RevisionVerificationResult, RevisionWitness_1_2 } from "./v1_2/models";
+import { verifyRevision, verifySignature, verifyWitness } from "./v1_2/v1_2";
 
 
 export interface VerificationOptions {
@@ -40,12 +40,19 @@ export class AquaVerifier {
         return null
     }
 
-    public verifySignature() {
-        
+    public verifySignature(signature : RevisionSignature, previous_hash : string ) {
+        if(this.options.version == 1.2){
+            return verifySignature(signature as RevisionSignature_1_2, previous_hash)
+        }
+        return null
     }
 
-    public verifyWitness() {
-
+    public verifyWitness(witness : RevisionWitness,  verification_hash: string,
+        doVerifyMerkleProof: boolean,) {
+        if(this.options.version == 1.2){
+            return verifyWitness(witness as RevisionWitness_1_2, verification_hash, doVerifyMerkleProof)
+        }
+        return null
     }
 
     public signFile() {
