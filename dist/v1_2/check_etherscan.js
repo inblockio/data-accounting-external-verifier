@@ -155,9 +155,13 @@ async function checkEtherScan(witnessNetwork, txHash, witnessVerificationHash) {
             return cesResult;
         }
         const body = response.data;
+        console.log("Body: ", typeof (body));
         // Updated regex to capture the content inside the span
-        const re = /<span id="rawinput"[^>]*>(.*?)<\/span>/i;
-        const match = re.exec(body);
+        // const re = /<span id="rawinput"[^>]*>(.*?)<\/span>/i
+        // const match = re.exec(body)
+        const re = /<span id=["']rawinput["'][^>]*>(.*?)<\/span>/i;
+        const match = body.match(re);
+        console.log("Content: ", match);
         let status = '';
         if (match && match[1]) { // match[1] contains the content inside the span
             let result = match[1].split('0x9cef4ea1')[1];

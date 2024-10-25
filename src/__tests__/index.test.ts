@@ -31,7 +31,7 @@ describe('AquaVerifier', () => {
         const revisionHashes = Object.keys(aquaChain.pages[0].revisions)
         // console.log(JSON.stringify(aquaChain, null, 4))
         const result = verifier.verifyRevision(aquaChain.pages[0].revisions[revisionHashes[0]]); // Adjust based on your actual method
-        // console.log(result)
+        console.log("Both signature and witness: ", result)
         // expect(result).not.toBeNull();
 
         //check if general successful
@@ -59,7 +59,7 @@ describe('AquaVerifier', () => {
         const revisionHashes = Object.keys(aquaChain.pages[0].revisions)
         // console.log(JSON.stringify(aquaChain, null, 4))
         const result = verifier.verifySignature(aquaChain.pages[0].revisions[revisionHashes[1]].signature!!,aquaChain.pages[0].revisions[revisionHashes[1]].metadata.previous_verification_hash!! ); // Adjust based on your actual method
-        console.log(result)
+        // console.log(result)
         expect(result).not.toBeNull();
 
         //check if general successful
@@ -76,7 +76,7 @@ describe('AquaVerifier', () => {
             aquaChain.pages[0].revisions[revisionHashes[1]].witness!!,
             aquaChain.pages[0].revisions[revisionHashes[1]].metadata.previous_verification_hash!! , 
             false); // Adjust based on your actual method
-        console.log(result)
+        // console.log(result)
         expect(result).not.toBeNull();
 
         //check if general successful

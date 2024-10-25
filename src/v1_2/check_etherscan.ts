@@ -1,4 +1,5 @@
 import { CheckEtherScanResult } from "./models";
+import axios from 'axios';
 
 const re = /<span id="rawinput".*<\/span>/
 
@@ -30,125 +31,6 @@ function sleep(ms: number) {
  * @param {string} witnessVerificationHash SHA3 verification hash
  * @returns {Promise<boolean>} whether the hash in the lookup matches witnessVerificationHash
  */
-// async function checkEtherScan(witnessNetwork: string, txHash: string, witnessVerificationHash: string): Promise<CheckEtherScanResult> {
-//     let cesResult: CheckEtherScanResult = {
-//         verificationHashMatches: false,
-//         message: "",
-//         successful: false
-//     }
-//   try {
-//     const witnessURL = witnessNetworkMap[witnessNetwork]
-//     const options = {
-//       timeout: 10000  // 10 seconds
-//     }
-//     const response = await fetch(`${witnessURL}/${txHash}`, { signal: AbortSignal.timeout(options.timeout) })
-//     if (!response.ok) {
-//         cesResult.message = `ERROR HTTP ${response.status} ${response.statusText}`
-//       return cesResult
-//     }
-//     const body = await response.text()
-//     const outArray = re.exec(body)
-//     let status = ''
-//     if (!!outArray) {
-//       let result = outArray[0].split('0x9cef4ea1')[1]
-//       result = result.slice(0, 128)
-//       //console.log(result == witnessVerificationHash)
-//       status = `${result == witnessVerificationHash}`
-//       cesResult.message = "Transaction found"
-//       cesResult.successful = true
-//       cesResult.verificationHashMatches = true
-//       return cesResult
-//     } else {
-//       status = 'Transaction hash not found'
-//     }
-//     cesResult.message = status
-//     // To avoid IP banning by etherscan.io
-//     await sleep(300)
-//     return cesResult
-//   }
-//   catch (e: any) {
-//     console.log("CHECK ETHERSCAN LOG ERROR: ", e)
-//     cesResult.message = `An error occured: ${e}`
-//     return cesResult
-//   }
-// }
-
-import axios from 'axios';
-
-// async function checkEtherScan(witnessNetwork: string, txHash: string, witnessVerificationHash: string): Promise<CheckEtherScanResult> {
-//   let cesResult: CheckEtherScanResult = {
-//     verificationHashMatches: false,
-//     message: "",
-//     successful: false
-//   }
-
-//   try {
-//     const witnessURL = witnessNetworkMap[witnessNetwork]
-//     // const options = {
-//     //   responseType: 'text',
-//       //timeout: 10000 // 10 seconds
-//     // }
-
-//     const response = await axios.get(`${witnessURL}/${txHash}`, {
-//       responseType : "text"
-//     })
-    
-//     console.info("Bdy from response status ", response.status)
-//     // Axios automatically throws on non-200 status codes, but keeping similar structure
-//     if (response.status !== 200) {
-//       cesResult.message = `ERROR HTTP ${response.status} ${response.statusText}`
-//       return cesResult
-//     }
-
-//     const body = response.data // Axios automatically parses JSON, but here we expect text
-   
-//     console.log("out body  is  ", body);
-
-//     const outArray = re.exec(body)
-
-//     console.log("out arrau is  ", outArray);
-//     console.log("=================================")
-//     let status = ''
-
-//     if (!!outArray) {
-//       let result = outArray[0].split('0x9cef4ea1')[1]
-//       result = result.slice(0, 128)
-//       //console.log(result == witnessVerificationHash)
-//       status = `${result == witnessVerificationHash}`
-//       cesResult.message = "Transaction found"
-//       cesResult.successful = true
-//       cesResult.verificationHashMatches = true
-//       return cesResult
-//     } else {
-//       status = 'Transaction hash not found'
-//     }
-
-//     cesResult.message = status
-//     // To avoid IP banning by etherscan.io
-//     await sleep(300)
-//     return cesResult
-//   }
-//   catch (e: any) {
-//     console.log("CHECK ETHERSCAN LOG ERROR: ", e)
-//     // Axios specific error handling
-//     if (axios.isAxiosError(e)) {
-//       if (e.code === 'ECONNABORTED') {
-//         cesResult.message = 'Request timed out'
-//       } else if (e.response) {
-//         cesResult.message = `HTTP Error: ${e.response.status} ${e.response.statusText}`
-//       } else if (e.request) {
-//         cesResult.message = 'No response received from server'
-//       } else {
-//         cesResult.message = `An error occurred: ${e.message}`
-//       }
-//     } else {
-//       cesResult.message = `An error occurred: ${e}`
-//     }
-//     return cesResult
-//   }
-// }
-
-
 async function checkEtherScan(witnessNetwork: string, txHash: string, witnessVerificationHash: string): Promise<CheckEtherScanResult> {
   let cesResult: CheckEtherScanResult = {
     verificationHashMatches: false,
@@ -158,35 +40,37 @@ async function checkEtherScan(witnessNetwork: string, txHash: string, witnessVer
 
   try {
     const witnessURL = witnessNetworkMap[witnessNetwork]
-    
+
 
     const response = await axios.get(`${witnessURL}/${txHash}`, {
       responseType: "text"
     })
-    
+
     if (response.status !== 200) {
       cesResult.message = `ERROR HTTP ${response.status} ${response.statusText}`
       return cesResult
     }
 
     const body = response.data
-    // Updated regex to capture the content inside the span
-    const re = /<span id="rawinput"[^>]*>(.*?)<\/span>/i
-    const match = re.exec(body)
+
+    const re = /<span id=["']rawinput["'][^>]*>(.*?)<\/span>/i;
+    const match = body.match(re);
+
     let status = ''
 
     if (match && match[1]) {  // match[1] contains the content inside the span
       let result = match[1].split('0x9cef4ea1')[1]
       if (result) {
         result = result.slice(0, 128)
-        status = `${result == witnessVerificationHash}`
-        cesResult.message = "Transaction found"
-        cesResult.successful = true
-        cesResult.verificationHashMatches = true
+        const hashMatches = result === witnessVerificationHash
+        status = `${hashMatches}`
+        cesResult.message = hashMatches ? "Verification Hash matches" : "Verification Hash does not match"
+        cesResult.successful = hashMatches
+        cesResult.verificationHashMatches = hashMatches
         return cesResult
       }
     }
-    
+
     status = 'Transaction hash not found'
     cesResult.message = status
     // To avoid IP banning by etherscan.io
@@ -222,4 +106,4 @@ async function testCheckEtherScan() {
 }
 
 // testCheckEtherScan()
-export { checkEtherScan, witnessNetworkMap}
+export { checkEtherScan, witnessNetworkMap }

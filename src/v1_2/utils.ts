@@ -10,6 +10,7 @@ export function getHashSum(content: string) {
 
 export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileResult] {
   const fileContentHash = data.content.file_hash || null
+  console.log("File content hash is: ", fileContentHash)
   if (fileContentHash === null) {
       return [
           false,
@@ -18,6 +19,7 @@ export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileR
   }
 
   const rawFileContent = Buffer.from(data.file?.data || "", "base64")
+  console.log("Generated content hash is: ", getHashSum(rawFileContent.toString()))
   if (fileContentHash !== getHashSum(rawFileContent.toString())) {
       return [false, { error_message: "File content hash does not match", file_hash: null }]
   }
