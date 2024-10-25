@@ -72,7 +72,6 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
     revisionResult.successful = allSuccessful;
 
 
-
     return revisionResult
 }
 
