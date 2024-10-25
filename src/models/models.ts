@@ -14,4 +14,4 @@ interface HashChain {
 
 }
 
-export { Revision, RevisionSignature, RevisionWitness, HashChain }
+export type { Revision, RevisionSignature, RevisionWitness, HashChain }

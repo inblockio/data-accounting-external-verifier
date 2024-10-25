@@ -2,10 +2,11 @@
   "name": "aqua-verifier",
   "version": "1.0.10",
   "description": "JS Client for external verifier.  Goal: A shared library supports a commandline execution and a chrome-extension which is implementation independent. So the verify.js will support not only the mediawiki integration but potentially other third party integrations of the verification procedure.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
+    "build": "rm -rf ./dist && tsup",
     "test": "jest",
     "prepare": "npm run build"
   },
@@ -14,7 +15,7 @@
     "validation",
     "verification"
   ],
-  "author": "Your Name",
+  "author": "Inblockio",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.7.7",
@@ -32,6 +33,7 @@
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
+    "tsup": "^8.3.4",
     "typescript": "^5.0.0"
   },
   "files": [

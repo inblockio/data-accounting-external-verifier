@@ -3,7 +3,7 @@ import sha3 from "js-sha3"
 import { MerkleNode, RevisionContent_1_2, RevisionMetadata_1_2, RevisionSignature_1_2, RevisionWitness_1_2, VerifyFileResult } from "./models"
 import { ethers } from "ethers"
 import { checkEtherScan } from "./check_etherscan"
-import { createHash, Hash } from "crypto"
+// import { createHash, Hash } from "crypto"
 
 export function getHashSum(content: string) {
   return content === "" ? "" : sha3.sha3_512(content)
@@ -12,14 +12,16 @@ export function getHashSum(content: string) {
 
 function generateHashFromBase64(b64: string) {
   // Create a SHA3-512 hasher
-  const fileHasher = createHash('sha3-512');
+  // const fileHasher = createHash('sha3-512');
 
-  // Update the hasher with the base64 content as a Buffer
-  fileHasher.update(Buffer.from(b64, 'base64'));
+  // // Update the hasher with the base64 content as a Buffer
+  // fileHasher.update(Buffer.from(b64, 'base64'));
 
-  // Finalize and return the hash as a Buffer
-  let hash = fileHasher.digest('hex')
-  return hash;
+  // // Finalize and return the hash as a Buffer
+  // let hash = fileHasher.digest('hex')
+  // return hash;
+  let hash = sha3.sha3_512(Buffer.from(b64, 'base64'))
+  return hash
 }
 
 // TODO: Fix this function
