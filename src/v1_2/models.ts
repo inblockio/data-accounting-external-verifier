@@ -1,8 +1,7 @@
-import { HexString } from "ethers/lib.commonjs/utils/data";
-import { Revision, RevisionSignature } from "../models/models";
+import { HashChain, Revision, RevisionSignature } from "../models/models";
 
 
-export interface HashChain {
+export interface HashChain_1_2 extends HashChain {
     genesis_hash: string;
     domain_id: string;
     title: string;
@@ -72,13 +71,13 @@ export interface Timestamp {
     nanos: number;
 }
 
-export interface PageData {
-    pages: HashChain[];
+export interface PageData_1_2 {
+    pages: HashChain_1_2[];
 }
 
 
 // Method 1: Direct access when you're sure of the structure
-export function getTimestampDirect(pageData: PageData): string | undefined {
+export function getTimestampDirect(pageData: PageData_1_2): string | undefined {
     if (pageData.pages.length > 0) {
         const firstPage = pageData.pages[0];
         const firstRevisionKey = Object.keys(firstPage.revisions)[0];
@@ -88,7 +87,7 @@ export function getTimestampDirect(pageData: PageData): string | undefined {
 }
 
 // Method 2: Safe access with optional chaining
-export function getTimestampSafe(pageData: PageData): string | undefined {
+export function getTimestampSafe(pageData: PageData_1_2): string | undefined {
     return pageData.pages[0]?.revisions[Object.keys(pageData.pages[0]?.revisions || {})[0]]?.metadata.time_stamp;
 }
 

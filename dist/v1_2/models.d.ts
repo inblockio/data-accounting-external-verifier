@@ -1,5 +1,5 @@
-import { Revision, RevisionSignature } from "../models/models";
-export interface HashChain {
+import { HashChain, Revision, RevisionSignature } from "../models/models";
+export interface HashChain_1_2 extends HashChain {
     genesis_hash: string;
     domain_id: string;
     title: string;
@@ -60,11 +60,11 @@ export interface Timestamp {
     seconds: number;
     nanos: number;
 }
-export interface PageData {
-    pages: HashChain[];
+export interface PageData_1_2 {
+    pages: HashChain_1_2[];
 }
-export declare function getTimestampDirect(pageData: PageData): string | undefined;
-export declare function getTimestampSafe(pageData: PageData): string | undefined;
+export declare function getTimestampDirect(pageData: PageData_1_2): string | undefined;
+export declare function getTimestampSafe(pageData: PageData_1_2): string | undefined;
 export interface RevisionVerificationResult {
     successful: boolean;
     file_verification: ResultStatus;

@@ -4,4 +4,6 @@ interface RevisionSignature {
 }
 interface RevisionWitness {
 }
-export { Revision, RevisionSignature, RevisionWitness };
+interface HashChain {
+}
+export { Revision, RevisionSignature, RevisionWitness, HashChain };

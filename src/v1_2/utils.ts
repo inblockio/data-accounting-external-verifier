@@ -3,23 +3,23 @@ import sha3 from "js-sha3"
 import { MerkleNode, RevisionContent_1_2, RevisionMetadata_1_2, RevisionSignature_1_2, RevisionWitness_1_2, VerifyFileResult } from "./models"
 import { ethers } from "ethers"
 import { checkEtherScan } from "./check_etherscan"
-import { createHash } from "crypto"
+import { createHash, Hash } from "crypto"
 
 export function getHashSum(content: string) {
   return content === "" ? "" : sha3.sha3_512(content)
 }
 
-export function contentHash(content: Record<string, string>): string {
-  // Create a hasher (SHA-512)
-  const hasher = createHash('sha3-512');
 
-  // Iterate over values in `content` and update the hash
-  Object.values(content).forEach(value => {
-    hasher.update(value);
-  });
+function generateHashFromBase64(b64: string) {
+  // Create a SHA3-512 hasher
+  const fileHasher = createHash('sha3-512');
 
-  // Finalize and return the hash as a hexadecimal string
-  return hasher.digest('hex');
+  // Update the hasher with the base64 content as a Buffer
+  fileHasher.update(Buffer.from(b64, 'base64'));
+
+  // Finalize and return the hash as a Buffer
+  let hash = fileHasher.digest('hex')
+  return hash;
 }
 
 // TODO: Fix this function
@@ -31,10 +31,11 @@ export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileR
       { error_message: "Revision contains a file, but no file content hash", file_hash: null },
     ]
   }
-
-  const rawFileContent = Buffer.from(data.file?.data || "", "base64")
-  if (fileContentHash !== getHashSum(rawFileContent.toString())) {
-      return [true, { error_message: "File content hash does not match", file_hash: null }]
+  const fileContent = data.file?.data
+  const hashFromb64 = generateHashFromBase64(fileContent ?? "")
+  
+  if (fileContentHash !== hashFromb64) {
+    return [false, { error_message: "File content hash does not match", file_hash: null }]
   }
 
   return [true, { file_hash: fileContentHash, error_message: null }]

@@ -1,11 +1,11 @@
-import { ResultStatus, ResultStatusEnum, Revision_1_2, RevisionContent_1_2, RevisionSignature_1_2, RevisionVerificationResult, VerifyFileResult, RevisionWitness_1_2 } from "./models";
+import { ResultStatus, ResultStatusEnum, Revision_1_2, RevisionContent_1_2, RevisionSignature_1_2, RevisionVerificationResult, VerifyFileResult, RevisionWitness_1_2, PageData_1_2, HashChain_1_2 } from "./models";
 import { getHashSum, jsonReplacer, verifyContentUtil, verifyFileUtil, verifyMetadataUtil, verifyWitnessUtil, verifySignatureUtil } from "./utils";
 
 const INVALID_VERIFICATION_STATUS = "INVALID"
 const VERIFIED_VERIFICATION_STATUS = "VERIFIED"
 const ERROR_VERIFICATION_STATUS = "ERROR"
 
-export function verifyRevision(revision: Revision_1_2): RevisionVerificationResult {
+export async function verifyRevision(revision: Revision_1_2): Promise<RevisionVerificationResult> {
     let defaultResultStatus: ResultStatus = {
         status: ResultStatusEnum.MISSING,
         successful: false,
@@ -21,58 +21,60 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
         metadata_verification: JSON.parse(JSON.stringify(defaultResultStatus))
     }
 
-    const [fileIsCorrect, fileOut] = verifyFileUtil(revision.content)
-    revisionResult.file_verification.status = ResultStatusEnum.AVAILABLE
-    revisionResult.file_verification.successful = fileIsCorrect
-    revisionResult.file_verification.message = fileOut.error_message ?? ""
-
+    const [fileIsCorrect, fileOut] = verifyFileUtil(revision.content);
+    revisionResult.file_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.file_verification.successful = fileIsCorrect;
+    revisionResult.file_verification.message = fileOut.error_message ?? "";
 
     // Verify Content
-    let [verifyContentIsOkay, resultMessage] = verifyContentUtil(revision.content)
-    revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE
-    revisionResult.content_verification.successful = verifyContentIsOkay
-    revisionResult.content_verification.message = resultMessage
+    let [verifyContentIsOkay, resultMessage] = verifyContentUtil(revision.content);
+    revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.content_verification.successful = verifyContentIsOkay;
+    revisionResult.content_verification.message = resultMessage;
 
-    // Verifty Metadata 
-    let [metadataOk, metadataHashMessage] = verifyMetadataUtil(revision.metadata)
+    // Verify Metadata 
+    let [metadataOk, metadataHashMessage] = verifyMetadataUtil(revision.metadata);
+    revisionResult.metadata_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.metadata_verification.successful = metadataOk;
+    revisionResult.metadata_verification.message = metadataHashMessage;
 
-    revisionResult.metadata_verification.status = ResultStatusEnum.AVAILABLE
-    revisionResult.metadata_verification.successful = metadataOk
-    revisionResult.metadata_verification.message = metadataHashMessage
-
-    // Verify signature
+    // Verify Signature
     if (revision.signature) {
-        let [signatureOk, signatureMessage] = verifySignatureUtil(revision?.signature, revision.metadata.previous_verification_hash ?? "")
-
-        revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE
-        revisionResult.signature_verification.successful = signatureOk
-        revisionResult.signature_verification.message = signatureMessage
+        let [signatureOk, signatureMessage] = verifySignatureUtil(revision.signature, revision.metadata.previous_verification_hash ?? "");
+        revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE;
+        revisionResult.signature_verification.successful = signatureOk;
+        revisionResult.signature_verification.message = signatureMessage;
     }
 
-    // Verify witness
+    // Verify Witness (asynchronous)
     if (revision.witness) {
-        // let [signatureOk, signatureMessage] = await 
-        verifyWitnessUtil(revision?.witness, revision.metadata.previous_verification_hash ?? "", revision.witness.structured_merkle_proof.length > 1).then(([success, message]) => {
-            revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE
-            revisionResult.signature_verification.successful = success
-            revisionResult.signature_verification.message = message
-        })
+        try {
+            const [success, message] = await verifyWitnessUtil(
+                revision.witness,
+                revision.metadata.previous_verification_hash ?? "",
+                revision.witness.structured_merkle_proof.length > 1
+            );
+            revisionResult.witness_verification.status = ResultStatusEnum.AVAILABLE;
+            revisionResult.witness_verification.successful = success;
+            revisionResult.witness_verification.message = message // message if needed
+        } catch (err) {
+            console.log("Witnessing error: ", err);
+        }
     }
 
     // Check the overall status
     let allSuccessful = true;
     for (const verification of Object.values(revisionResult)) {
         if (verification.status === ResultStatusEnum.AVAILABLE && !verification.successful) {
-            allSuccessful = false; // Found a case where status is AVAILABLE but not successful
-            break; // Exit the loop early
+            allSuccessful = false;
+            break;
         }
     }
 
     // Update the overall successful status
     revisionResult.successful = allSuccessful;
 
-
-    return revisionResult
+    return revisionResult;
 }
 
 
@@ -112,3 +114,29 @@ export async function verifyWitness(witness: RevisionWitness_1_2, verification_h
 
     return defaultResultStatus;
 }
+
+export async function verifyAquaChain(aquaChain: HashChain_1_2) {
+
+    const hashChainResult: any = {
+        successful: true,
+        revisionResults: []
+    }
+
+    const revisionHashes = Object.keys(aquaChain.revisions);
+
+    for (let j = 0; j < revisionHashes.length; j++) {
+        const revision = aquaChain.revisions[revisionHashes[j]]
+        const revisionResult = await verifyRevision(revision)
+        hashChainResult.revisionResults.push(revisionResult)
+    }
+
+    for (let i = 0; i < hashChainResult.revisionResults.length; i++) {
+        const revisionResult = hashChainResult.revisionResults[i];
+        if (!revisionResult.successful) {
+            hashChainResult.successful = false
+            break;
+        }
+    }
+    return Promise.resolve(hashChainResult);
+}
+

@@ -13,9 +13,20 @@ exports.verifyWitnessUtil = verifyWitnessUtil;
 const js_sha3_1 = __importDefault(require("js-sha3"));
 const ethers_1 = require("ethers");
 const check_etherscan_1 = require("./check_etherscan");
+const crypto_1 = require("crypto");
 function getHashSum(content) {
     return content === "" ? "" : js_sha3_1.default.sha3_512(content);
 }
+function generateHashFromBase64(b64) {
+    // Create a SHA3-512 hasher
+    const fileHasher = (0, crypto_1.createHash)('sha3-512');
+    // Update the hasher with the base64 content as a Buffer
+    fileHasher.update(Buffer.from(b64, 'base64'));
+    // Finalize and return the hash as a Buffer
+    let hash = fileHasher.digest('hex');
+    return hash;
+}
+// TODO: Fix this function
 function verifyFileUtil(data) {
     var _a;
     const fileContentHash = data.content.file_hash || null;
@@ -25,8 +36,9 @@ function verifyFileUtil(data) {
             { error_message: "Revision contains a file, but no file content hash", file_hash: null },
         ];
     }
-    const rawFileContent = Buffer.from(((_a = data.file) === null || _a === void 0 ? void 0 : _a.data) || "", "base64");
-    if (fileContentHash !== getHashSum(rawFileContent.toString())) {
+    const fileContent = (_a = data.file) === null || _a === void 0 ? void 0 : _a.data;
+    const hashFromb64 = generateHashFromBase64(fileContent !== null && fileContent !== void 0 ? fileContent : "");
+    if (fileContentHash !== hashFromb64) {
         return [false, { error_message: "File content hash does not match", file_hash: null }];
     }
     return [true, { file_hash: fileContentHash, error_message: null }];
