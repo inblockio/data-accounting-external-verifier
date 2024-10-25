@@ -14,11 +14,11 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
 
     let revisionResult: RevisionVerificationResult = {
         successful: false,
-        file_verification: structuredClone(defaultResultStatus),
-        content_verification: structuredClone(defaultResultStatus),
-        witness_verification: structuredClone(defaultResultStatus),
-        signature_verification: structuredClone(defaultResultStatus),
-        metadata_verification: structuredClone(defaultResultStatus)
+        file_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        content_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        witness_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        signature_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        metadata_verification: JSON.parse(JSON.stringify(defaultResultStatus))
     }
 
     const [fileIsCorrect, fileOut] = verifyFileUtil(revision.content)
@@ -28,9 +28,9 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
 
 
     // Verify Content
-    let [ok, resultMessage] = verifyContentUtil(revision.content)
+    let [verifyContentIsOkay, resultMessage] = verifyContentUtil(revision.content)
     revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE
-    revisionResult.content_verification.successful = ok
+    revisionResult.content_verification.successful = verifyContentIsOkay
     revisionResult.content_verification.message = resultMessage
 
     // Verifty Metadata 
@@ -59,18 +59,32 @@ export function verifyRevision(revision: Revision_1_2): RevisionVerificationResu
         })
     }
 
+    // Check the overall status
+    let allSuccessful = true;
+    for (const verification of Object.values(revisionResult)) {
+        if (verification.status === ResultStatusEnum.AVAILABLE && !verification.successful) {
+            allSuccessful = false; // Found a case where status is AVAILABLE but not successful
+            break; // Exit the loop early
+        }
+    }
+
+    // Update the overall successful status
+    revisionResult.successful = allSuccessful;
+
+
+
     return revisionResult
 }
 
 
-export function verifySignature(signature: RevisionSignature_1_2, previous_verification_hash : string):ResultStatus{
+export function verifySignature(signature: RevisionSignature_1_2, previous_verification_hash: string): ResultStatus {
 
     let defaultResultStatus: ResultStatus = {
         status: ResultStatusEnum.MISSING,
         successful: false,
         message: ""
     }
-   
+
     let [signatureOk, signatureMessage] = verifySignatureUtil(signature, previous_verification_hash)
 
     defaultResultStatus.status = ResultStatusEnum.AVAILABLE
@@ -82,17 +96,16 @@ export function verifySignature(signature: RevisionSignature_1_2, previous_verif
 }
 
 
-
-export async function verifyWitness(witness: RevisionWitness_1_2,  verification_hash: string,
-    doVerifyMerkleProof: boolean,):Promise<ResultStatus>{
+export async function verifyWitness(witness: RevisionWitness_1_2, verification_hash: string,
+    doVerifyMerkleProof: boolean,): Promise<ResultStatus> {
 
     let defaultResultStatus: ResultStatus = {
         status: ResultStatusEnum.MISSING,
         successful: false,
         message: ""
     }
-   
-    let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash,doVerifyMerkleProof)
+
+    let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof)
 
     defaultResultStatus.status = ResultStatusEnum.AVAILABLE
     defaultResultStatus.successful = witnessOk
