@@ -91,6 +91,10 @@ export function getTimestampSafe(pageData: PageData_1_2): string | undefined {
     return pageData.pages[0]?.revisions[Object.keys(pageData.pages[0]?.revisions || {})[0]]?.metadata.time_stamp;
 }
 
+export interface RevisionAquaChainResult {
+    successful: boolean,
+    revisionResults : Array<RevisionVerificationResult>
+}
 
 export interface RevisionVerificationResult {
     successful: boolean,

@@ -1,5 +1,5 @@
 import { HashChain, Revision, RevisionSignature, RevisionWitness } from "./models/models";
-import { HashChain_1_2, PageData_1_2, Revision_1_2, RevisionSignature_1_2, RevisionVerificationResult, RevisionWitness_1_2 } from "./v1_2/models";
+import { HashChain_1_2, PageData_1_2, Revision_1_2, RevisionAquaChainResult, RevisionSignature_1_2, RevisionVerificationResult, RevisionWitness_1_2 } from "./v1_2/models";
 import { verifyAquaChain, verifyRevision, verifySignature, verifyWitness } from "./v1_2/v1_2";
 
 
@@ -65,10 +65,11 @@ export default class AquaVerifier {
     // }
 
     public verifyMerkleTree() {
-
+      throw new Error("Unimplmeneted error .... ");
+      
     }
 
-    public verifyAquaChain(hashChain: HashChain): Promise<any> | null {
+    public verifyAquaChain(hashChain: HashChain): Promise<RevisionAquaChainResult> | null {
         if (this.options.version == 1.2) {
             return verifyAquaChain(hashChain as HashChain_1_2)
         }

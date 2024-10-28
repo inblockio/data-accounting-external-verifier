@@ -30,9 +30,30 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  AquaVerifier: () => AquaVerifier
+  AquaVerifier: () => AquaVerifier,
+  ResultStatusEnum: () => ResultStatusEnum,
+  getTimestampDirect: () => getTimestampDirect,
+  getTimestampSafe: () => getTimestampSafe
 });
 module.exports = __toCommonJS(src_exports);
+
+// src/v1_2/models.ts
+function getTimestampDirect(pageData) {
+  if (pageData.pages.length > 0) {
+    const firstPage = pageData.pages[0];
+    const firstRevisionKey = Object.keys(firstPage.revisions)[0];
+    return firstPage.revisions[firstRevisionKey].metadata.time_stamp;
+  }
+  return void 0;
+}
+function getTimestampSafe(pageData) {
+  return pageData.pages[0]?.revisions[Object.keys(pageData.pages[0]?.revisions || {})[0]]?.metadata.time_stamp;
+}
+var ResultStatusEnum = /* @__PURE__ */ ((ResultStatusEnum2) => {
+  ResultStatusEnum2[ResultStatusEnum2["MISSING"] = 0] = "MISSING";
+  ResultStatusEnum2[ResultStatusEnum2["AVAILABLE"] = 1] = "AVAILABLE";
+  return ResultStatusEnum2;
+})(ResultStatusEnum || {});
 
 // src/v1_2/utils.ts
 var import_js_sha3 = __toESM(require("js-sha3"));
@@ -372,6 +393,7 @@ var AquaVerifier = class {
   // public witnessFile() {
   // }
   verifyMerkleTree() {
+    throw new Error("Unimplmeneted error .... ");
   }
   verifyAquaChain(hashChain) {
     if (this.options.version == 1.2) {
@@ -382,5 +404,8 @@ var AquaVerifier = class {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  AquaVerifier
+  AquaVerifier,
+  ResultStatusEnum,
+  getTimestampDirect,
+  getTimestampSafe
 });

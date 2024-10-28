@@ -1,4 +1,4 @@
-import { ResultStatus, ResultStatusEnum, Revision_1_2, RevisionContent_1_2, RevisionSignature_1_2, RevisionVerificationResult, VerifyFileResult, RevisionWitness_1_2, PageData_1_2, HashChain_1_2 } from "./models";
+import { ResultStatus, ResultStatusEnum, Revision_1_2, RevisionContent_1_2, RevisionSignature_1_2, RevisionVerificationResult, VerifyFileResult, RevisionWitness_1_2, PageData_1_2, HashChain_1_2, RevisionAquaChainResult } from "./models";
 import { getHashSum, jsonReplacer, verifyContentUtil, verifyFileUtil, verifyMetadataUtil, verifyWitnessUtil, verifySignatureUtil } from "./utils";
 
 const INVALID_VERIFICATION_STATUS = "INVALID"
@@ -78,6 +78,7 @@ export async function verifyRevision(revision: Revision_1_2): Promise<RevisionVe
 }
 
 
+
 export function verifySignature(signature: RevisionSignature_1_2, previous_verification_hash: string): ResultStatus {
 
     let defaultResultStatus: ResultStatus = {
@@ -115,9 +116,9 @@ export async function verifyWitness(witness: RevisionWitness_1_2, verification_h
     return defaultResultStatus;
 }
 
-export async function verifyAquaChain(aquaChain: HashChain_1_2) {
+export async function verifyAquaChain(aquaChain: HashChain_1_2) : Promise<RevisionAquaChainResult> {
 
-    const hashChainResult: any = {
+    const hashChainResult: RevisionAquaChainResult = {
         successful: true,
         revisionResults: []
     }
@@ -126,7 +127,7 @@ export async function verifyAquaChain(aquaChain: HashChain_1_2) {
 
     for (let j = 0; j < revisionHashes.length; j++) {
         const revision = aquaChain.revisions[revisionHashes[j]]
-        const revisionResult = await verifyRevision(revision)
+        const revisionResult : RevisionVerificationResult = await verifyRevision(revision)
         hashChainResult.revisionResults.push(revisionResult)
     }
 
