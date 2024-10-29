@@ -5,7 +5,7 @@ const INVALID_VERIFICATION_STATUS = "INVALID"
 const VERIFIED_VERIFICATION_STATUS = "VERIFIED"
 const ERROR_VERIFICATION_STATUS = "ERROR"
 
-export async function verifyRevision(revision: Revision_1_2): Promise<RevisionVerificationResult> {
+export async function verifyRevision(revision: Revision_1_2, alchemyKey: string): Promise<RevisionVerificationResult> {
     let defaultResultStatus: ResultStatus = {
         status: ResultStatusEnum.MISSING,
         successful: false,
@@ -52,7 +52,8 @@ export async function verifyRevision(revision: Revision_1_2): Promise<RevisionVe
             const [success, message] = await verifyWitnessUtil(
                 revision.witness,
                 revision.metadata.previous_verification_hash ?? "",
-                revision.witness.structured_merkle_proof.length > 1
+                revision.witness.structured_merkle_proof.length > 1,
+                alchemyKey
             );
             revisionResult.witness_verification.status = ResultStatusEnum.AVAILABLE;
             revisionResult.witness_verification.successful = success;
@@ -99,7 +100,7 @@ export function verifySignature(signature: RevisionSignature_1_2, previous_verif
 
 
 export async function verifyWitness(witness: RevisionWitness_1_2, verification_hash: string,
-    doVerifyMerkleProof: boolean,): Promise<ResultStatus> {
+    doVerifyMerkleProof: boolean, alchemyKey: string): Promise<ResultStatus> {
 
     let defaultResultStatus: ResultStatus = {
         status: ResultStatusEnum.MISSING,
@@ -107,7 +108,8 @@ export async function verifyWitness(witness: RevisionWitness_1_2, verification_h
         message: ""
     }
 
-    let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof)
+
+    let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof, alchemyKey)
 
     defaultResultStatus.status = ResultStatusEnum.AVAILABLE
     defaultResultStatus.successful = witnessOk
@@ -116,7 +118,7 @@ export async function verifyWitness(witness: RevisionWitness_1_2, verification_h
     return defaultResultStatus;
 }
 
-export async function verifyAquaChain(aquaChain: HashChain_1_2) : Promise<RevisionAquaChainResult> {
+export async function verifyAquaChain(aquaChain: HashChain_1_2, alchemyKey: string) : Promise<RevisionAquaChainResult> {
 
     const hashChainResult: RevisionAquaChainResult = {
         successful: true,
@@ -127,7 +129,7 @@ export async function verifyAquaChain(aquaChain: HashChain_1_2) : Promise<Revisi
 
     for (let j = 0; j < revisionHashes.length; j++) {
         const revision = aquaChain.revisions[revisionHashes[j]]
-        const revisionResult : RevisionVerificationResult = await verifyRevision(revision)
+        const revisionResult : RevisionVerificationResult = await verifyRevision(revision, alchemyKey)
         hashChainResult.revisionResults.push(revisionResult)
     }
 

@@ -8,7 +8,7 @@ describe('Aqua Verifier Tests', () => {
     let verifier: AquaVerifier;
 
     beforeEach(() => {
-        verifier = new AquaVerifier({ version: 1.2 });
+        verifier = new AquaVerifier({ version: 1.2, alchemyKey: "----" });
     });
 
     test('getInformation', () => {
@@ -71,4 +71,16 @@ describe('Aqua Verifier Tests', () => {
         expect(result?.successful).toBe(true); 
         
     });
+
+    // We cannot directly test from jest because ethers requires one to be really connected to some network ie localhost or you are on production live link
+    // test('Check etherscan', async () => {
+    //     const result = await checkTransaction("sepolia", "0x72f1af326031c0889ec87d544e1d36d69c10d3f25ba32c72006dd004b4eadb24", "f6b074d63b2dd82ecc709f7e6ef66b9c39ea72d579e517b1b5be8fa7db824c23acbc90c8d846010819cf7281c0fb62e620728a58e8a85e2f185473fb36d50739")
+    //     console.log("Result: ", result)
+    //     // expect(result).not.toBeNull();
+
+    //     // //check if general successful
+    //     // expect(result?.successful).toBe(true); 
+        
+    // }, 20000);
+
 });

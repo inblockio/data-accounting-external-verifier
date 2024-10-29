@@ -57,71 +57,46 @@ var ResultStatusEnum = /* @__PURE__ */ ((ResultStatusEnum2) => {
 
 // src/v1_2/utils.ts
 var import_js_sha3 = __toESM(require("js-sha3"));
-var import_ethers = require("ethers");
+var import_ethers2 = require("ethers");
 
-// src/v1_2/check_etherscan.ts
-var import_axios = __toESM(require("axios"));
-var witnessNetworkMap = {
-  "mainnet": "https://etherscan.io/tx",
-  "sepolia": "https://sepolia.etherscan.io/tx",
-  "holesky": "https://holesky.etherscan.io/tx"
+// src/v1_2/updated_check_etherscan.ts
+var import_ethers = require("ethers");
+var networkRpcMap = {
+  mainnet: "https://eth-mainnet.g.alchemy.com/v2/",
+  holesky: "https://eth-holesky.g.alchemy.com/v2/",
+  sepolia: "https://eth-sepolia.g.alchemy.com/v2/"
 };
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-async function checkEtherScan(witnessNetwork, txHash, witnessVerificationHash) {
-  let cesResult = {
+async function checkTransaction(network, txHash, expectedVerificationHash, alchemyKey) {
+  let result = {
     verificationHashMatches: false,
     message: "",
     successful: false
   };
   try {
-    const witnessURL = witnessNetworkMap[witnessNetwork];
-    const response = await import_axios.default.get(`${witnessURL}/${txHash}`, {
-      responseType: "text"
-    });
-    if (response.status !== 200) {
-      cesResult.message = `ERROR HTTP ${response.status} ${response.statusText}`;
-      return cesResult;
+    const rpcUrl = networkRpcMap[network] + alchemyKey;
+    if (!rpcUrl) throw new Error(`Unsupported network: ${network}`);
+    const provider = new import_ethers.ethers.JsonRpcProvider(rpcUrl);
+    const tx = await provider.getTransaction(txHash);
+    if (!tx) {
+      result.message = "Transaction not found";
+      return result;
     }
-    const body = response.data;
-    const re = /<span id=["']rawinput["'][^>]*>(.*?)<\/span>/i;
-    const match = body.match(re);
-    let status = "";
-    if (match && match[1]) {
-      let result = match[1].split("0x9cef4ea1")[1];
-      if (result) {
-        result = result.slice(0, 128);
-        const hashMatches = result === witnessVerificationHash;
-        status = `${hashMatches}`;
-        cesResult.message = hashMatches ? "Verification Hash matches" : "Verification Hash does not match";
-        cesResult.successful = hashMatches;
-        cesResult.verificationHashMatches = hashMatches;
-        return cesResult;
-      }
-    }
-    status = "Transaction hash not found";
-    cesResult.message = status;
-    await sleep(300);
-    return cesResult;
-  } catch (e) {
-    console.log("CHECK ETHERSCAN LOG ERROR: ", e);
-    if (import_axios.default.isAxiosError(e)) {
-      if (e.code === "ECONNABORTED") {
-        cesResult.message = "Request timed out";
-      } else if (e.response) {
-        cesResult.message = `HTTP Error: ${e.response.status} ${e.response.statusText}`;
-      } else if (e.request) {
-        cesResult.message = "No response received from server";
-      } else {
-        cesResult.message = `An error occurred: ${e.message}`;
-      }
+    const inputData = tx.data;
+    const functionSelector = "0x9cef4ea1";
+    if (inputData.startsWith(functionSelector)) {
+      const actualVerificationHash = inputData.slice(10, 10 + 128);
+      const hashMatches = actualVerificationHash.toLowerCase() === expectedVerificationHash.toLowerCase();
+      result.verificationHashMatches = hashMatches;
+      result.successful = hashMatches;
+      result.message = hashMatches ? "Verification hash matches" : "Verification hash does not match";
     } else {
-      cesResult.message = `An error occurred: ${e}`;
+      result.message = "Transaction data does not contain expected function selector";
     }
-    return cesResult;
+    return result;
+  } catch (error) {
+    console.error("Error during transaction verification:", error);
+    result.message = `An error occurred: ${error.message || error}`;
+    return result;
   }
 }
 
@@ -184,8 +159,8 @@ function verifySignatureUtil(data, verificationHash) {
   }
   const paddedMessage = `I sign the following page verification_hash: [0x${verificationHash}]`;
   try {
-    const recoveredAddress = import_ethers.ethers.recoverAddress(
-      import_ethers.ethers.hashMessage(paddedMessage),
+    const recoveredAddress = import_ethers2.ethers.recoverAddress(
+      import_ethers2.ethers.hashMessage(paddedMessage),
       data.signature
     );
     signatureOk = recoveredAddress.toLowerCase() === data.wallet_address.toLowerCase();
@@ -195,14 +170,16 @@ function verifySignatureUtil(data, verificationHash) {
   }
   return [signatureOk, status];
 }
-async function verifyWitnessUtil(witnessData, verification_hash, doVerifyMerkleProof) {
+async function verifyWitnessUtil(witnessData, verification_hash, doVerifyMerkleProof, alchemyKey) {
   const actual_witness_event_verification_hash = getHashSum(
     witnessData.domain_snapshot_genesis_hash + witnessData.merkle_root
   );
-  const etherScanResult = await checkEtherScan(
+  let tx_hash = witnessData.witness_event_transaction_hash.startsWith("0x") ? witnessData.witness_event_transaction_hash : `0x${witnessData.witness_event_transaction_hash}`;
+  const etherScanResult = await checkTransaction(
     witnessData.witness_network,
-    witnessData.witness_event_transaction_hash,
-    actual_witness_event_verification_hash
+    tx_hash,
+    actual_witness_event_verification_hash,
+    alchemyKey
   );
   if (actual_witness_event_verification_hash != witnessData.witness_event_verification_hash) {
     return [false, "Verification hashes do not match"];
@@ -254,7 +231,7 @@ function verifyMerkleIntegrity(merkleBranch, verificationHash) {
 }
 
 // src/v1_2/v1_2.ts
-async function verifyRevision(revision) {
+async function verifyRevision(revision, alchemyKey) {
   let defaultResultStatus = {
     status: 0 /* MISSING */,
     successful: false,
@@ -291,7 +268,8 @@ async function verifyRevision(revision) {
       const [success, message] = await verifyWitnessUtil(
         revision.witness,
         revision.metadata.previous_verification_hash ?? "",
-        revision.witness.structured_merkle_proof.length > 1
+        revision.witness.structured_merkle_proof.length > 1,
+        alchemyKey
       );
       revisionResult.witness_verification.status = 1 /* AVAILABLE */;
       revisionResult.witness_verification.successful = success;
@@ -322,19 +300,19 @@ function verifySignature(signature, previous_verification_hash) {
   defaultResultStatus.message = signatureMessage;
   return defaultResultStatus;
 }
-async function verifyWitness(witness, verification_hash, doVerifyMerkleProof) {
+async function verifyWitness(witness, verification_hash, doVerifyMerkleProof, alchemyKey) {
   let defaultResultStatus = {
     status: 0 /* MISSING */,
     successful: false,
     message: ""
   };
-  let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof);
+  let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof, alchemyKey);
   defaultResultStatus.status = 1 /* AVAILABLE */;
   defaultResultStatus.successful = witnessOk;
   defaultResultStatus.message = witnessMessage;
   return defaultResultStatus;
 }
-async function verifyAquaChain(aquaChain) {
+async function verifyAquaChain(aquaChain, alchemyKey) {
   const hashChainResult = {
     successful: true,
     revisionResults: []
@@ -342,7 +320,7 @@ async function verifyAquaChain(aquaChain) {
   const revisionHashes = Object.keys(aquaChain.revisions);
   for (let j = 0; j < revisionHashes.length; j++) {
     const revision = aquaChain.revisions[revisionHashes[j]];
-    const revisionResult = await verifyRevision(revision);
+    const revisionResult = await verifyRevision(revision, alchemyKey);
     hashChainResult.revisionResults.push(revisionResult);
   }
   for (let i = 0; i < hashChainResult.revisionResults.length; i++) {
@@ -358,7 +336,7 @@ async function verifyAquaChain(aquaChain) {
 // src/aquaVerifier.ts
 var AquaVerifier = class {
   options;
-  constructor(options = { version: 1.2 }) {
+  constructor(options = { version: 1.2, alchemyKey: "" }) {
     this.options = {
       strict: false,
       allowNull: false,
@@ -370,8 +348,11 @@ var AquaVerifier = class {
     return this.options;
   }
   verifyRevision(revision) {
+    if (this.options.alchemyKey === "") {
+      throw new Error("ALCHEMY KEY NOT SET");
+    }
     if (this.options.version == 1.2) {
-      return verifyRevision(revision);
+      return verifyRevision(revision, this.options.alchemyKey);
     }
     return null;
   }
@@ -382,8 +363,11 @@ var AquaVerifier = class {
     return null;
   }
   verifyWitness(witness, verification_hash, doVerifyMerkleProof) {
+    if (this.options.alchemyKey === "") {
+      throw new Error("ALCHEMY KEY NOT SET");
+    }
     if (this.options.version == 1.2) {
-      return verifyWitness(witness, verification_hash, doVerifyMerkleProof);
+      return verifyWitness(witness, verification_hash, doVerifyMerkleProof, this.options.alchemyKey);
     }
     return null;
   }
@@ -396,8 +380,11 @@ var AquaVerifier = class {
     throw new Error("Unimplmeneted error .... ");
   }
   verifyAquaChain(hashChain) {
+    if (this.options.alchemyKey === "") {
+      throw new Error("ALCHEMY KEY NOT SET");
+    }
     if (this.options.version == 1.2) {
-      return verifyAquaChain(hashChain);
+      return verifyAquaChain(hashChain, this.options.alchemyKey);
     }
     return null;
   }

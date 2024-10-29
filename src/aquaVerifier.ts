@@ -8,6 +8,7 @@ export interface VerificationOptions {
     strict?: boolean;
     allowNull?: boolean;
     customMessages?: Record<string, string>;
+    alchemyKey: string
 }
 
 
@@ -15,16 +16,16 @@ export default class AquaVerifier {
 
     private options: VerificationOptions;
 
-    constructor(options: VerificationOptions = { version: 1.2 }) {
+    constructor(options: VerificationOptions = { version: 1.2, alchemyKey: "" }) {
         // if (options.version !== 1.2) {
         //     throw new Error("Unsupported Version");
         // }
 
         this.options = {
+            ...options,
             strict: false,
             allowNull: false,
             customMessages: {},
-            ...options
         };
     }
 
@@ -34,8 +35,11 @@ export default class AquaVerifier {
     }
 
     public verifyRevision(revision: Revision): Promise<RevisionVerificationResult> | null {
+        if (this.options.alchemyKey === "") {
+            throw new Error("ALCHEMY KEY NOT SET");
+        }
         if (this.options.version == 1.2) {
-            return verifyRevision(revision as Revision_1_2)
+            return verifyRevision(revision as Revision_1_2, this.options.alchemyKey)
         }
         return null
     }
@@ -49,8 +53,11 @@ export default class AquaVerifier {
 
     public verifyWitness(witness: RevisionWitness, verification_hash: string,
         doVerifyMerkleProof: boolean) {
+        if (this.options.alchemyKey === "") {
+            throw new Error("ALCHEMY KEY NOT SET");
+        }
         if (this.options.version == 1.2) {
-            return verifyWitness(witness as RevisionWitness_1_2, verification_hash, doVerifyMerkleProof)
+            return verifyWitness(witness as RevisionWitness_1_2, verification_hash, doVerifyMerkleProof, this.options.alchemyKey)
         }
         return null
     }
@@ -65,13 +72,16 @@ export default class AquaVerifier {
     // }
 
     public verifyMerkleTree() {
-      throw new Error("Unimplmeneted error .... ");
-      
+        throw new Error("Unimplmeneted error .... ");
+
     }
 
     public verifyAquaChain(hashChain: HashChain): Promise<RevisionAquaChainResult> | null {
+        if (this.options.alchemyKey === "") {
+            throw new Error("ALCHEMY KEY NOT SET");
+        }
         if (this.options.version == 1.2) {
-            return verifyAquaChain(hashChain as HashChain_1_2)
+            return verifyAquaChain(hashChain as HashChain_1_2, this.options.alchemyKey)
         }
         return null
     }

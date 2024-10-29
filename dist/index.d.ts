@@ -114,6 +114,7 @@ interface VerificationOptions {
     strict?: boolean;
     allowNull?: boolean;
     customMessages?: Record<string, string>;
+    alchemyKey: string;
 }
 declare class AquaVerifier {
     private options;

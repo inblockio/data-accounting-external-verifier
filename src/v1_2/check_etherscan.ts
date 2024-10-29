@@ -42,7 +42,7 @@ async function checkEtherScan(witnessNetwork: string, txHash: string, witnessVer
     const witnessURL = witnessNetworkMap[witnessNetwork]
 
 
-    const response = await axios.get(`${witnessURL}/${txHash}`, {
+    const response = await axios.get(`https://cors-anywhere.herokuapp.com/${witnessURL}/${txHash}`, {
       responseType: "text"
     })
 

@@ -3,6 +3,7 @@ import sha3 from "js-sha3"
 import { MerkleNode, RevisionContent_1_2, RevisionMetadata_1_2, RevisionSignature_1_2, RevisionWitness_1_2, VerifyFileResult } from "./models"
 import { ethers } from "ethers"
 import { checkEtherScan } from "./check_etherscan"
+import { checkTransaction } from "./updated_check_etherscan"
 // import { createHash, Hash } from "crypto"
 
 export function getHashSum(content: string) {
@@ -35,7 +36,7 @@ export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileR
   }
   const fileContent = data.file?.data
   const hashFromb64 = generateHashFromBase64(fileContent ?? "")
-  
+
   if (fileContentHash !== hashFromb64) {
     return [false, { error_message: "File content hash does not match", file_hash: null }]
   }
@@ -119,16 +120,19 @@ export async function verifyWitnessUtil(
   witnessData: RevisionWitness_1_2,
   verification_hash: string,
   doVerifyMerkleProof: boolean,
+  alchemyKey: string
 ): Promise<[boolean, string]> {
   const actual_witness_event_verification_hash = getHashSum(
     witnessData.domain_snapshot_genesis_hash + witnessData.merkle_root
   )
 
-  // Do online lookup of transaction hash
-  const etherScanResult = await checkEtherScan(
+   let tx_hash = witnessData.witness_event_transaction_hash.startsWith('0x') ? witnessData.witness_event_transaction_hash : `0x${witnessData.witness_event_transaction_hash}`
+
+  const etherScanResult = await checkTransaction(
     witnessData.witness_network,
-    witnessData.witness_event_transaction_hash,
-    actual_witness_event_verification_hash
+    tx_hash,
+    actual_witness_event_verification_hash,
+    alchemyKey
   )
 
   if (
