@@ -1,6 +1,8 @@
 import { verifyAquaChain, verifyRevision, verifySignature, verifyWitness } from "./aquaVerifier";
 import { HashChain, Revision, RevisionAquaChainResult, RevisionSignature, RevisionVerificationResult, RevisionWitness } from "./models/models";
 
+export *  from "./models/models";
+
 export interface VerificationOptions {
     version: number;
     strict?: boolean;

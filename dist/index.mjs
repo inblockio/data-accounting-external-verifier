@@ -1,4 +1,4 @@
-// src/v1_2/models.ts
+// src/models/models.ts
 function getTimestampDirect(pageData) {
   if (pageData.pages.length > 0) {
     const firstPage = pageData.pages[0];
@@ -16,11 +16,11 @@ var ResultStatusEnum = /* @__PURE__ */ ((ResultStatusEnum2) => {
   return ResultStatusEnum2;
 })(ResultStatusEnum || {});
 
-// src/v1_2/utils.ts
+// src/utils/utils.ts
 import sha3 from "js-sha3";
 import { ethers as ethers2 } from "ethers";
 
-// src/v1_2/updated_check_etherscan.ts
+// src/utils/updated_check_etherscan.ts
 import { ethers } from "ethers";
 var networkRpcMap = {
   mainnet: "https://eth-mainnet.g.alchemy.com/v2/",
@@ -61,7 +61,7 @@ async function checkTransaction(network, txHash, expectedVerificationHash, alche
   }
 }
 
-// src/v1_2/utils.ts
+// src/utils/utils.ts
 function getHashSum(content) {
   return content === "" ? "" : sha3.sha3_512(content);
 }
@@ -131,10 +131,13 @@ function verifySignatureUtil(data, verificationHash) {
   }
   return [signatureOk, status];
 }
-async function verifyWitnessUtil(witnessData, verification_hash, doVerifyMerkleProof, alchemyKey) {
+async function verifyWitnessUtil(witnessData, verification_hash, doVerifyMerkleProof, alchemyKey, doAlchemyKeyLookUp) {
   const actual_witness_event_verification_hash = getHashSum(
     witnessData.domain_snapshot_genesis_hash + witnessData.merkle_root
   );
+  if (!doAlchemyKeyLookUp) {
+    return [true, "Look up not perfomed."];
+  }
   let tx_hash = witnessData.witness_event_transaction_hash.startsWith("0x") ? witnessData.witness_event_transaction_hash : `0x${witnessData.witness_event_transaction_hash}`;
   const etherScanResult = await checkTransaction(
     witnessData.witness_network,
@@ -191,8 +194,8 @@ function verifyMerkleIntegrity(merkleBranch, verificationHash) {
   return true;
 }
 
-// src/v1_2/v1_2.ts
-async function verifyRevision(revision, alchemyKey) {
+// src/aquaVerifier.ts
+async function verifyRevision(revision, alchemyKey, doAlchemyKeyLookUp) {
   let defaultResultStatus = {
     status: 0 /* MISSING */,
     successful: false,
@@ -230,7 +233,8 @@ async function verifyRevision(revision, alchemyKey) {
         revision.witness,
         revision.metadata.previous_verification_hash ?? "",
         revision.witness.structured_merkle_proof.length > 1,
-        alchemyKey
+        alchemyKey,
+        doAlchemyKeyLookUp
       );
       revisionResult.witness_verification.status = 1 /* AVAILABLE */;
       revisionResult.witness_verification.successful = success;
@@ -261,19 +265,19 @@ function verifySignature(signature, previous_verification_hash) {
   defaultResultStatus.message = signatureMessage;
   return defaultResultStatus;
 }
-async function verifyWitness(witness, verification_hash, doVerifyMerkleProof, alchemyKey) {
+async function verifyWitness(witness, verification_hash, doVerifyMerkleProof, alchemyKey, doAlchemyKeyLookUp) {
   let defaultResultStatus = {
     status: 0 /* MISSING */,
     successful: false,
     message: ""
   };
-  let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof, alchemyKey);
+  let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof, alchemyKey, doAlchemyKeyLookUp);
   defaultResultStatus.status = 1 /* AVAILABLE */;
   defaultResultStatus.successful = witnessOk;
   defaultResultStatus.message = witnessMessage;
   return defaultResultStatus;
 }
-async function verifyAquaChain(aquaChain, alchemyKey) {
+async function verifyAquaChain(aquaChain, alchemyKey, doAlchemyKeyLookUp) {
   const hashChainResult = {
     successful: true,
     revisionResults: []
@@ -281,7 +285,7 @@ async function verifyAquaChain(aquaChain, alchemyKey) {
   const revisionHashes = Object.keys(aquaChain.revisions);
   for (let j = 0; j < revisionHashes.length; j++) {
     const revision = aquaChain.revisions[revisionHashes[j]];
-    const revisionResult = await verifyRevision(revision, alchemyKey);
+    const revisionResult = await verifyRevision(revision, alchemyKey, doAlchemyKeyLookUp);
     hashChainResult.revisionResults.push(revisionResult);
   }
   for (let i = 0; i < hashChainResult.revisionResults.length; i++) {
@@ -294,28 +298,25 @@ async function verifyAquaChain(aquaChain, alchemyKey) {
   return Promise.resolve(hashChainResult);
 }
 
-// src/aquaVerifier.ts
+// src/index.ts
 var AquaVerifier = class {
   options;
-  constructor(options = { version: 1.2, alchemyKey: "" }) {
+  constructor(options = { version: 1.2, alchemyKey: "", doAlchemyKeyLookUp: false }) {
     this.options = {
+      ...options,
       strict: false,
       allowNull: false,
-      customMessages: {},
-      ...options
+      customMessages: {}
     };
   }
   fetchVerificationOptions() {
     return this.options;
   }
   verifyRevision(revision) {
-    if (this.options.alchemyKey === "") {
+    if (this.options.doAlchemyKeyLookUp && this.options.alchemyKey === "") {
       throw new Error("ALCHEMY KEY NOT SET");
     }
-    if (this.options.version == 1.2) {
-      return verifyRevision(revision, this.options.alchemyKey);
-    }
-    return null;
+    return verifyRevision(revision, this.options.alchemyKey, this.options.doAlchemyKeyLookUp);
   }
   verifySignature(signature, previous_hash) {
     if (this.options.version == 1.2) {
@@ -324,13 +325,10 @@ var AquaVerifier = class {
     return null;
   }
   verifyWitness(witness, verification_hash, doVerifyMerkleProof) {
-    if (this.options.alchemyKey === "") {
+    if (this.options.doAlchemyKeyLookUp && this.options.alchemyKey === "") {
       throw new Error("ALCHEMY KEY NOT SET");
     }
-    if (this.options.version == 1.2) {
-      return verifyWitness(witness, verification_hash, doVerifyMerkleProof, this.options.alchemyKey);
-    }
-    return null;
+    return verifyWitness(witness, verification_hash, doVerifyMerkleProof, this.options.alchemyKey, this.options.doAlchemyKeyLookUp);
   }
   // TODO: Fix: verifier can't sign nor witness files. So this two methods might be out of place here because the verifier is verify AQUA Chain
   // public signFile() {
@@ -341,18 +339,15 @@ var AquaVerifier = class {
     throw new Error("Unimplmeneted error .... ");
   }
   verifyAquaChain(hashChain) {
-    if (this.options.alchemyKey === "") {
+    if (this.options.doAlchemyKeyLookUp && this.options.alchemyKey === "") {
       throw new Error("ALCHEMY KEY NOT SET");
     }
-    if (this.options.version == 1.2) {
-      return verifyAquaChain(hashChain, this.options.alchemyKey);
-    }
-    return null;
+    return verifyAquaChain(hashChain, this.options.alchemyKey, this.options.doAlchemyKeyLookUp);
   }
 };
 export {
-  AquaVerifier,
   ResultStatusEnum,
+  AquaVerifier as default,
   getTimestampDirect,
   getTimestampSafe
 };

@@ -61,7 +61,7 @@ export interface RevisionMetadata {
     previous_verification_hash: string | null;
     metadata_hash: string;
     verification_hash: string;
-    merge_hash: string | null
+    merge_hash: string | null;
 }
 
 export interface Timestamp {

@@ -22,3 +22,14 @@ import { AquaVerifier } from 'aqua-verifier';
 
 ##  Requirements
 Node.js v20.9.0
+
+
+## local development
+You can use the library without having to instal it from npm
+1. run `npm run build`
+2. run `npm link`
+
+in you aqua-container or any other project run `npm  link aqua-verifier` .
+optional to unlink remove this library `npm unlink aqua-verifier`
+
+
