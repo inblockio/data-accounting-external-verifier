@@ -8,7 +8,7 @@ describe('Aqua Verifier Tests', () => {
     let verifier: AquaVerifier;
 
     beforeEach(() => {
-        verifier = new AquaVerifier({ version: 1.2, alchemyKey: "----", alchemyLookUp: false });
+        verifier = new AquaVerifier({ version: 1.2, alchemyKey: "----", doAlchemyKeyLookUp: false });
     });
 
     test('getInformation', () => {
