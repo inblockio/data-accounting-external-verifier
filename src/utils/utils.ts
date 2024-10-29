@@ -1,6 +1,6 @@
 
 import sha3 from "js-sha3"
-import { MerkleNode, RevisionContent_1_2, RevisionMetadata_1_2, RevisionSignature_1_2, RevisionWitness_1_2, VerifyFileResult } from "./models"
+import { MerkleNode, RevisionContent, RevisionMetadata, RevisionSignature, RevisionWitness, VerifyFileResult } from "../models/models"
 import { ethers } from "ethers"
 import { checkEtherScan } from "./check_etherscan"
 import { checkTransaction } from "./updated_check_etherscan"
@@ -26,7 +26,7 @@ function generateHashFromBase64(b64: string) {
 }
 
 // TODO: Fix this function
-export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileResult] {
+export function verifyFileUtil(data: RevisionContent): [boolean, VerifyFileResult] {
   const fileContentHash = data.content.file_hash || null
   if (fileContentHash === null) {
     return [
@@ -44,7 +44,7 @@ export function verifyFileUtil(data: RevisionContent_1_2): [boolean, VerifyFileR
   return [true, { file_hash: fileContentHash, error_message: null }]
 }
 
-export function verifyContentUtil(data: RevisionContent_1_2): [boolean, string] {
+export function verifyContentUtil(data: RevisionContent): [boolean, string] {
   let content = ""
   for (const slotContent of Object.values(data.content)) {
     content += slotContent
@@ -57,7 +57,7 @@ export function verifyContentUtil(data: RevisionContent_1_2): [boolean, string] 
   return [false, "Content hash does not match"]
 }
 
-export function verifyMetadataUtil(data: RevisionMetadata_1_2): [boolean, string] {
+export function verifyMetadataUtil(data: RevisionMetadata): [boolean, string] {
   const metadataHash = calculateMetadataHash(
     data.domain_id,
     data.time_stamp,
@@ -83,7 +83,7 @@ function calculateMetadataHash(
 }
 
 
-export function verifySignatureUtil(data: RevisionSignature_1_2, verificationHash: string): [boolean, string] {
+export function verifySignatureUtil(data: RevisionSignature, verificationHash: string): [boolean, string] {
   // TODO enforce that the verificationHash is a correct SHA3 sum string
   // Specify signature correctness
   let signatureOk = false
@@ -117,16 +117,20 @@ export function verifySignatureUtil(data: RevisionSignature_1_2, verificationHas
 
 
 export async function verifyWitnessUtil(
-  witnessData: RevisionWitness_1_2,
+  witnessData: RevisionWitness,
   verification_hash: string,
   doVerifyMerkleProof: boolean,
-  alchemyKey: string
+  alchemyKey: string,
+  doAlchemyKeyLookUp: boolean,
 ): Promise<[boolean, string]> {
   const actual_witness_event_verification_hash = getHashSum(
     witnessData.domain_snapshot_genesis_hash + witnessData.merkle_root
   )
 
-   let tx_hash = witnessData.witness_event_transaction_hash.startsWith('0x') ? witnessData.witness_event_transaction_hash : `0x${witnessData.witness_event_transaction_hash}`
+  if (!doAlchemyKeyLookUp) {
+    return [true, "Look up not perfomed."]
+  }
+  let tx_hash = witnessData.witness_event_transaction_hash.startsWith('0x') ? witnessData.witness_event_transaction_hash : `0x${witnessData.witness_event_transaction_hash}`
 
   const etherScanResult = await checkTransaction(
     witnessData.witness_network,
@@ -156,6 +160,7 @@ export async function verifyWitnessUtil(
   }
 
   return [etherScanResult.successful, etherScanResult.message]
+
 }
 
 function verifyMerkleIntegrity(merkleBranch: MerkleNode[], verificationHash: string) {

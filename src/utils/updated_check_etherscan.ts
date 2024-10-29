@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { CheckEtherScanResult, ResultStatus } from './models';
+import { CheckEtherScanResult, ResultStatus } from '../models/models';
 
 // Map of network names to RPC URLs
 const networkRpcMap: { [key: string]: string } = {

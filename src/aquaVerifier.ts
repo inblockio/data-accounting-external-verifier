@@ -1,88 +1,147 @@
-import { HashChain, Revision, RevisionSignature, RevisionWitness } from "./models/models";
-import { HashChain_1_2, PageData_1_2, Revision_1_2, RevisionAquaChainResult, RevisionSignature_1_2, RevisionVerificationResult, RevisionWitness_1_2 } from "./v1_2/models";
-import { verifyAquaChain, verifyRevision, verifySignature, verifyWitness } from "./v1_2/v1_2";
+import { ResultStatus, ResultStatusEnum, Revision, RevisionContent, RevisionSignature, RevisionVerificationResult, VerifyFileResult, RevisionWitness, PageData, HashChain, RevisionAquaChainResult } from "./models/models";
+import { getHashSum, jsonReplacer, verifyContentUtil, verifyFileUtil, verifyMetadataUtil, verifyWitnessUtil, verifySignatureUtil } from "./utils/utils";
 
+const INVALID_VERIFICATION_STATUS = "INVALID"
+const VERIFIED_VERIFICATION_STATUS = "VERIFIED"
+const ERROR_VERIFICATION_STATUS = "ERROR"
 
-export interface VerificationOptions {
-    version: number;
-    strict?: boolean;
-    allowNull?: boolean;
-    customMessages?: Record<string, string>;
-    alchemyKey: string
+export async function verifyRevision(revision: Revision, alchemyKey: string ,doAlchemyKeyLookUp: boolean ): Promise<RevisionVerificationResult> {
+    let defaultResultStatus: ResultStatus = {
+        status: ResultStatusEnum.MISSING,
+        successful: false,
+        message: ""
+    }
+
+    let revisionResult: RevisionVerificationResult = {
+        successful: false,
+        file_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        content_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        witness_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        signature_verification: JSON.parse(JSON.stringify(defaultResultStatus)),
+        metadata_verification: JSON.parse(JSON.stringify(defaultResultStatus))
+    }
+
+    const [fileIsCorrect, fileOut] = verifyFileUtil(revision.content);
+    revisionResult.file_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.file_verification.successful = fileIsCorrect;
+    revisionResult.file_verification.message = fileOut.error_message ?? "";
+
+    // Verify Content
+    let [verifyContentIsOkay, resultMessage] = verifyContentUtil(revision.content);
+    revisionResult.content_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.content_verification.successful = verifyContentIsOkay;
+    revisionResult.content_verification.message = resultMessage;
+
+    // Verify Metadata 
+    let [metadataOk, metadataHashMessage] = verifyMetadataUtil(revision.metadata);
+    revisionResult.metadata_verification.status = ResultStatusEnum.AVAILABLE;
+    revisionResult.metadata_verification.successful = metadataOk;
+    revisionResult.metadata_verification.message = metadataHashMessage;
+
+    // Verify Signature
+    if (revision.signature) {
+        let [signatureOk, signatureMessage] = verifySignatureUtil(revision.signature, revision.metadata.previous_verification_hash ?? "");
+        revisionResult.signature_verification.status = ResultStatusEnum.AVAILABLE;
+        revisionResult.signature_verification.successful = signatureOk;
+        revisionResult.signature_verification.message = signatureMessage;
+    }
+
+    // Verify Witness (asynchronous)
+    if (revision.witness) {
+        try {
+            const [success, message] = await verifyWitnessUtil(
+                revision.witness,
+                revision.metadata.previous_verification_hash ?? "",
+                revision.witness.structured_merkle_proof.length > 1,
+                alchemyKey,
+                doAlchemyKeyLookUp
+
+            );
+            revisionResult.witness_verification.status = ResultStatusEnum.AVAILABLE;
+            revisionResult.witness_verification.successful = success;
+            revisionResult.witness_verification.message = message // message if needed
+        } catch (err) {
+            console.log("Witnessing error: ", err);
+        }
+    }
+
+    // Check the overall status
+    let allSuccessful = true;
+    for (const verification of Object.values(revisionResult)) {
+        if (verification.status === ResultStatusEnum.AVAILABLE && !verification.successful) {
+            allSuccessful = false;
+            break;
+        }
+    }
+
+    // Update the overall successful status
+    revisionResult.successful = allSuccessful;
+
+    return revisionResult;
 }
 
 
-export default class AquaVerifier {
 
-    private options: VerificationOptions;
+export function verifySignature(signature: RevisionSignature, previous_verification_hash: string): ResultStatus {
 
-    constructor(options: VerificationOptions = { version: 1.2, alchemyKey: "" }) {
-        // if (options.version !== 1.2) {
-        //     throw new Error("Unsupported Version");
-        // }
-
-        this.options = {
-            ...options,
-            strict: false,
-            allowNull: false,
-            customMessages: {},
-        };
+    let defaultResultStatus: ResultStatus = {
+        status: ResultStatusEnum.MISSING,
+        successful: false,
+        message: ""
     }
 
+    let [signatureOk, signatureMessage] = verifySignatureUtil(signature, previous_verification_hash)
 
-    public fetchVerificationOptions() {
-        return this.options
-    }
+    defaultResultStatus.status = ResultStatusEnum.AVAILABLE
+    defaultResultStatus.successful = signatureOk
+    defaultResultStatus.message = signatureMessage
 
-    public verifyRevision(revision: Revision): Promise<RevisionVerificationResult> | null {
-        if (this.options.alchemyKey === "") {
-            throw new Error("ALCHEMY KEY NOT SET");
-        }
-        if (this.options.version == 1.2) {
-            return verifyRevision(revision as Revision_1_2, this.options.alchemyKey)
-        }
-        return null
-    }
+    return defaultResultStatus;
 
-    public verifySignature(signature: RevisionSignature, previous_hash: string) {
-        if (this.options.version == 1.2) {
-            return verifySignature(signature as RevisionSignature_1_2, previous_hash)
-        }
-        return null
-    }
-
-    public verifyWitness(witness: RevisionWitness, verification_hash: string,
-        doVerifyMerkleProof: boolean) {
-        if (this.options.alchemyKey === "") {
-            throw new Error("ALCHEMY KEY NOT SET");
-        }
-        if (this.options.version == 1.2) {
-            return verifyWitness(witness as RevisionWitness_1_2, verification_hash, doVerifyMerkleProof, this.options.alchemyKey)
-        }
-        return null
-    }
-
-    // TODO: Fix: verifier can't sign nor witness files. So this two methods might be out of place here because the verifier is verify AQUA Chain
-    // public signFile() {
-
-    // }
-
-    // public witnessFile() {
-
-    // }
-
-    public verifyMerkleTree() {
-        throw new Error("Unimplmeneted error .... ");
-
-    }
-
-    public verifyAquaChain(hashChain: HashChain): Promise<RevisionAquaChainResult> | null {
-        if (this.options.alchemyKey === "") {
-            throw new Error("ALCHEMY KEY NOT SET");
-        }
-        if (this.options.version == 1.2) {
-            return verifyAquaChain(hashChain as HashChain_1_2, this.options.alchemyKey)
-        }
-        return null
-    }
 }
+
+
+export async function verifyWitness(witness: RevisionWitness, verification_hash: string,
+    doVerifyMerkleProof: boolean, alchemyKey: string,doAlchemyKeyLookUp: boolean): Promise<ResultStatus> {
+
+    let defaultResultStatus: ResultStatus = {
+        status: ResultStatusEnum.MISSING,
+        successful: false,
+        message: ""
+    }
+
+
+    let [witnessOk, witnessMessage] = await verifyWitnessUtil(witness, verification_hash, doVerifyMerkleProof, alchemyKey, doAlchemyKeyLookUp)
+
+    defaultResultStatus.status = ResultStatusEnum.AVAILABLE
+    defaultResultStatus.successful = witnessOk
+    defaultResultStatus.message = witnessMessage
+
+    return defaultResultStatus;
+}
+
+export async function verifyAquaChain(aquaChain: HashChain, alchemyKey: string, doAlchemyKeyLookUp: boolean) : Promise<RevisionAquaChainResult> {
+
+    const hashChainResult: RevisionAquaChainResult = {
+        successful: true,
+        revisionResults: []
+    }
+
+    const revisionHashes = Object.keys(aquaChain.revisions);
+
+    for (let j = 0; j < revisionHashes.length; j++) {
+        const revision = aquaChain.revisions[revisionHashes[j]]
+        const revisionResult : RevisionVerificationResult = await verifyRevision(revision, alchemyKey, doAlchemyKeyLookUp)
+        hashChainResult.revisionResults.push(revisionResult)
+    }
+
+    for (let i = 0; i < hashChainResult.revisionResults.length; i++) {
+        const revisionResult = hashChainResult.revisionResults[i];
+        if (!revisionResult.successful) {
+            hashChainResult.successful = false
+            break;
+        }
+    }
+    return Promise.resolve(hashChainResult);
+}
+
