@@ -1,6 +1,6 @@
 {
   "name": "aqua-verifier",
-  "version": "1.0.10",
+  "version": "1.2.0",
   "description": "JS Client for external verifier.  Goal: A shared library supports a commandline execution and a chrome-extension which is implementation independent. So the verify.js will support not only the mediawiki integration but potentially other third party integrations of the verification procedure.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
