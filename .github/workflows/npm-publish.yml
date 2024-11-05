@@ -7,8 +7,13 @@ name: Publish package
 #   release:
 #     types: [created]
 
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
+
+  on:
+    push:
+      branches:
+        - verify_ts
 
 jobs:
   build:
