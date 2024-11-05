@@ -5,4 +5,5 @@ src/
 tsup.config.ts
 jest.config.js
 coverage/   
-.*
+.prettierignore
+.prettierrc.json
