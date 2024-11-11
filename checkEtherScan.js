@@ -1,6 +1,7 @@
 import fetch from "node-fetch"
 
-const re = /<span id="rawinput".*<\/span>/
+// const re = /<span id="rawinput".*<\/span>/
+const re = /<span id=["']rawinput["'][^>]*>(.*?)<\/span>/i;
 
 const witnessNetworkMap = {
   'mainnet': 'https://etherscan.io/tx',
