@@ -439,7 +439,6 @@ async function* generateVerifyPage(
       }
     }
 
-    console.log(`************ 1 adding to revision hashes loop  \n seenRevisions ${seenRevisions}  \n vh ${vh} ***********`);
     seenRevisions.push(vh);
 
 

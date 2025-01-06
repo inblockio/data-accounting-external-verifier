@@ -59,6 +59,28 @@
         "12201a57696918e67e4a27dc5d3d160445cfb5d3230dc40cf062539507e173279af8",
         "1220eb7da2d23eb01e65ef4e712cf7aecc006a1c53662016e99952af077ed73077cf"
       ]
+    },
+    "0x122037ea0dc5eef7b831cad9f5531a8ca8bd3babcb3bdd0b6b8a79b68eb18baef6f1": {
+      "previous_verification_hash": "0x1220a821c0fd9af7d67a2295ef5086a98f4645bd2aa9af0d414ea35134dd533bc1ed",
+      "nonce": "bCgnF7wO4xu0swyiIniy5Cs0aLVlViVpf8TbvM3DsH0",
+      "domain_id": "0x03b6ff4b0c45ce230eb48499614538ca7daa43000395e694ac92eaa1e4b805df8a",
+      "local_timestamp": "20250106134359",
+      "revision_type": "signature",
+      "signature": "0xe6cbd411b754d31355875bec0c51221251995a62b1515c32f2b729895a4220401f8590025bd03b0175201e3f49024a4d5228c61f978c3dde3ebe940651fa33a61c",
+      "signature_public_key": "0x045fcffdf45a315d44875e94ee80fa758be54e5dfdf10d6507d6c2e54fbdcaf172373f65e6dd32226af6828c2e8e8bfdcb839e321cc70f58949ab82bbce4d92b8a",
+      "signature_wallet_address": "0x677e5e9a3badb280d7393464c09490f813d6d6ef",
+      "signature_type": "ethereum:eip-191",
+      "leaves": [
+        "1220761f0dcda99b953fd55a33864a76ea7f8ab4776b3a3c974b964fa1fdc6dfceaf",
+        "122091336e1b4ea815ed3044c24485c6fd179d9c9d8d17930a4e594225c9ad3649f4",
+        "122083aa28cdd62b72dd9821d0c0741962860ab5a9fa51462f0e257cdd59d119805d",
+        "122041f0cbd77dc1ad62d4526963bc9051bbc77a73ba83f17bbc485588622c453f93",
+        "12200a6a79f09c2e133a9fd5eda3554c6896f1714e933cece32ba462e3ea0b585ab2",
+        "1220a9cd52197d1d37aea6bee7cadb7fb32a90e3c3c5064ea481ac83d531f736a95c",
+        "1220d41ddf78777ac13c779462b772cfd2d54116f5d3c7729d875e2f49e372be7ff4",
+        "1220b002b9216f19be74d73f30e5c714c27140af54cb75ff7cf85a6cc7178c90a0be",
+        "12204726706dfbc6dceaf9cbea59c20e0477857b627ae694332e714e2a8296a3030b"
+      ]
     }
   },
   "file_index": {

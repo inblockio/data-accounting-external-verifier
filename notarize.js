@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import * as fs from "fs"
+import os from 'os'; 
 import { randomBytes } from 'crypto'
 
 import * as ethers from "ethers"
@@ -294,6 +295,22 @@ const serializeAquaObject = (metadataFilename, aquaObject) => {
   fs.writeFileSync(metadataFilename, JSON.stringify(aquaObject, null, 2), "utf8")
 }
 
+const getDomainName = () => {
+  let domain = ""
+  domain = os.userInfo().username;
+
+  try {
+    const credentials = readCredentials()
+    let [wallet, walletAddress, publicKey] = getWallet(credentials.mnemonic)
+    domain = publicKey
+  } catch (error) {
+    console.error("Failed to read mnemonic:", error)
+    process.exit(1)
+  }
+  return domain;
+}
+
+
 const createNewRevision = async (
   previousVerificationHash,
   timestamp,
@@ -301,10 +318,11 @@ const createNewRevision = async (
   enableScalar,
   aquaObject,
 ) => {
+  
   let verificationData = {
     previous_verification_hash: previousVerificationHash,
     nonce: prepareNonce(),
-    domain_id: "5e5a1ec586", // TODO
+    domain_id: getDomainName (), //"5e5a1ec586", // TODO
     local_timestamp: timestamp,
     revision_type,
   }
@@ -361,7 +379,7 @@ const createNewRevision = async (
 }
 
   // The main function
-  ; (async function() {
+  ; (async function () {
     const metadataFilename = filename + ".aqua.json"
     // const timestamp = getFileTimestamp(filename)
     // We use "now" instead of the modified time of the file
