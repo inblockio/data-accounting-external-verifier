@@ -2,3 +2,5 @@ node_modules
 index.js
 credentials.json
 mnemonic.txt
+*.aqua.json
+*/**/.aqua.json

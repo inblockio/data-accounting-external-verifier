@@ -15,6 +15,50 @@
         "1220d781acf7ba880ecae581ffd8debcb4f5cb430bc2f237e27a6098471a9f7ffa60",
         "12207eea9613c6543d280b92a70e7b03451901dbf8ed6993eb2488210961277e0775"
       ]
+    },
+    "0x122077df58c3dbfa8c28351547884e76549a41f0dac354d5efb5694b95a3938dc112": {
+      "previous_verification_hash": "0x12203e88f95c4c41150b1ce0b58c2070c444fb78c56de9aa67b7ea637fd551006e05",
+      "nonce": "_s3UxnRdCrTBB7GwCl1i-LhNreaaHxdVd7QzczO6u2A",
+      "domain_id": "5e5a1ec586",
+      "local_timestamp": "20250106124119",
+      "revision_type": "link",
+      "link_type": "aqua",
+      "link_require_indepth_verification": true,
+      "link_verification_hash": "0x122077b13aa20311977baa76f2f43f823c0fedb74bbf1255e8c7f8d9ccacaa4aa777",
+      "link_uri": "README.md.aqua.json",
+      "leaves": [
+        "12207afb5b5ffe18091a7682dbc03611827f066836399a010826c8ce0ccbfde0014b",
+        "12205423e34fff098f7ec344b1467c0319bdafea3b4056fd937da45071b78b6f8e10",
+        "1220ee0a316f3f278b42a32ae36c336022507e55e0f167fc58402a88d7b3aab52117",
+        "1220a7f30b2201d9034a28807616c90d300bbae75185052660b4e47193d3a786a895",
+        "1220f63eff868e70dce71e52bcdb6780f44c5caca7ba1a6be8ee55b795fda3a29609",
+        "1220e8add8229f7a3c8340ad914c5fff386522d13b698f9664eb4c1eaa2b85d59c4b",
+        "1220ac278d646037303f32c7b0c53c5345214201e45911a9c29c2c748e98996b86ec",
+        "1220fc841a39f71031e0dd3e3bff0f3179dd2a48f226a1c3a193ee31c3b379718bbf",
+        "1220eb7da2d23eb01e65ef4e712cf7aecc006a1c53662016e99952af077ed73077cf"
+      ]
+    },
+    "0x1220a821c0fd9af7d67a2295ef5086a98f4645bd2aa9af0d414ea35134dd533bc1ed": {
+      "previous_verification_hash": "0x122077df58c3dbfa8c28351547884e76549a41f0dac354d5efb5694b95a3938dc112",
+      "nonce": "dzcPaymhMVWKBPcYnPLtgI6oqpDSZlGMBDYzQtTK2-o",
+      "domain_id": "5e5a1ec586",
+      "local_timestamp": "20250106124826",
+      "revision_type": "link",
+      "link_type": "aqua",
+      "link_require_indepth_verification": true,
+      "link_verification_hash": "0x122077df58c3dbfa8c28351547884e76549a41f0dac354d5efb5694b95a3938dc112",
+      "link_uri": "LICENSE.aqua.json",
+      "leaves": [
+        "12207afb5b5ffe18091a7682dbc03611827f066836399a010826c8ce0ccbfde0014b",
+        "12205423e34fff098f7ec344b1467c0319bdafea3b4056fd937da45071b78b6f8e10",
+        "1220ee0a316f3f278b42a32ae36c336022507e55e0f167fc58402a88d7b3aab52117",
+        "122079d12e169bbddad0373fe2badce41f0b6c8fa8a10f58d94b8c8947b27d8ccceb",
+        "12209e7f8ec7d55d114f056291442d88982b269d9d9394620edb0153db8a0b29331e",
+        "12200a9f421e81bc0f5838137155628275bfa594c54ea0562ba7c97679cb6f6208df",
+        "12205af4438aa4c9276d981363e6cf17d48747da3930c88a724d229812dacc0a9fb5",
+        "12201a57696918e67e4a27dc5d3d160445cfb5d3230dc40cf062539507e173279af8",
+        "1220eb7da2d23eb01e65ef4e712cf7aecc006a1c53662016e99952af077ed73077cf"
+      ]
     }
   },
   "file_index": {

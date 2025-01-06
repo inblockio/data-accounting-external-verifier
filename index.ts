@@ -410,6 +410,8 @@ function calculateStatus(count: number, totalLength: number) {
  * @returns {Generator} Generator for isCorrect boolean and detail object of
  *                      each revisions.
  */
+let seenRevisions = [];
+
 async function* generateVerifyPage(
   verificationHashes,
   aquaObject,
@@ -420,7 +422,27 @@ async function* generateVerifyPage(
 
   let elapsed
   let totalElapsed = 0.0
+
+  // loop while adding the revision hash  into array
+  // before verifiying check if the revision in th array 
+
+
+
   for (const vh of verificationHashes) {
+
+    if (seenRevisions.length > 0) {
+      let exist = seenRevisions.find((e) => e == vh);
+      if (exist != undefined) {
+        console.log("=============== Exiting circular loop ============ ");
+        yield [null, {}]
+        return
+      }
+    }
+
+    console.log(`************ 1 adding to revision hashes loop  \n seenRevisions ${seenRevisions}  \n vh ${vh} ***********`);
+    seenRevisions.push(vh);
+
+
     const elapsedStart = hrtime()
 
     const [isCorrect, detail] = await verifyRevision(
@@ -464,13 +486,22 @@ async function verifyPage(input, verbose, doVerifyMerkleProof) {
     verification_hashes: verificationHashes,
     revision_details: [],
   }
+
   for await (const value of generateVerifyPage(
     verificationHashes,
     input,
     verbose,
     doVerifyMerkleProof,
   )) {
+
+
     const [isCorrect, detail] = value
+
+    if (isCorrect === null) {
+      console.log("...exiting script ...")
+      process.exit(1);
+    }
+
     formatter.printRevisionInfo(detail, verbose)
     details.revision_details.unshift(detail)
     if (!isCorrect) {
